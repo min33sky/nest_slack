@@ -1,5 +1,7 @@
+import { ApiTags } from '@nestjs/swagger';
 import { Controller, Delete, Get, Post } from '@nestjs/common';
 
+@ApiTags('Workspaces')
 @Controller('api/workspaces')
 export class WorkspacesController {
   @Get()
