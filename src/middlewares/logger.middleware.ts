@@ -9,6 +9,7 @@ export class LoggerMiddleware implements NestMiddleware {
     const { ip, method, originalUrl } = req;
     const userAgent = req.get('user-agent') || '';
 
+    //? 로깅은 가장 마지막에 처리한다.
     res.on('finish', () => {
       const { statusCode } = res;
       const contentLength = res.get('content-length');
