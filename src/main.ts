@@ -1,3 +1,4 @@
+import { HttpExceptionFilter } from './httpException.filter';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -10,6 +11,8 @@ declare const module: any;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
+
+  // app.useGlobalFilters(new HttpExceptionFilter()); // 모든 컨트롤러의 httpexception 걸러주기
 
   const config = new DocumentBuilder()
     .setTitle('Slack_Clone API')
@@ -42,6 +45,7 @@ async function bootstrap() {
     module.hot.dispose(() => app.close());
   }
 
-  console.log(`listening on port -------> ${port}`);
+  console.log(`listening on port --> ${port}`);
 }
+
 bootstrap();
