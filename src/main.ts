@@ -12,7 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
 
-  // app.useGlobalFilters(new HttpExceptionFilter()); // 모든 컨트롤러의 httpexception 걸러주기
+  app.useGlobalFilters(new HttpExceptionFilter()); // 모든 컨트롤러의 httpexception 걸러주기
 
   const config = new DocumentBuilder()
     .setTitle('Slack_Clone API')
