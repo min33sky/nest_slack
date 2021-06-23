@@ -63,6 +63,9 @@ email?: string;
 
 **[참고 링크](https://stackoverflow.com/questions/67045344/unable-to-resolve-signature-of-property-decorator-when-called-as-an-expression)**
 
+- Error: Authentication strategies must have a name
+  - passport-local 대신 passport를 import 했는지 체크
+
 ## References
 
 - [Hot Reload](https://docs.nestjs.com/recipes/hot-reload#hot-reload)

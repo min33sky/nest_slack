@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -25,9 +26,17 @@ export class Workspaces {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
+  @ApiProperty({
+    example: 'workspace name',
+    description: '워크스페이스 이름',
+  })
   @Column('varchar', { name: 'name', unique: true, length: 30 })
   name: string;
 
+  @ApiProperty({
+    example: 'workspace-url',
+    description: '워크스페이스 URL',
+  })
   @Column('varchar', { name: 'url', unique: true, length: 30 })
   url: string;
 

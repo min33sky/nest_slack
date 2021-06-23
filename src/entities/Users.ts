@@ -40,14 +40,25 @@ export class Users {
 
   @IsString()
   @IsNotEmpty()
+  @ApiProperty({
+    example: 'messi',
+    description: '닉네임',
+  })
   @Column('varchar', { name: 'nickname', length: 30 })
   nickname: string;
 
   @IsString()
   @IsNotEmpty()
-  @Column('varchar', { name: 'password', length: 100, select: false })
+  @ApiProperty({
+    example: '!@qwer1234@!',
+    description: '패스워드',
+  })
+  @Column('varchar', { name: 'password', length: 100, select: false }) //! select:false -> 데이터를 가져올 때 수동으로 추출해야된다.
   password: string;
 
+  @ApiProperty({
+    description: '생성날짜',
+  })
   @CreateDateColumn()
   createdAt: Date;
 

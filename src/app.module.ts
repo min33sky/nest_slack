@@ -9,11 +9,17 @@ import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import ormconfig from '../ormconfig';
+import { AuthModule } from './auth/auth.module';
+import { Users } from './entities/Users';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot(ormconfig),
+    TypeOrmModule.forFeature([Users]),
+    AuthModule,
     UsersModule,
     WorkspacesModule,
     ChannelsModule,
