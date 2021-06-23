@@ -8,45 +8,64 @@
 2. 기존 DB가 존재할 땐 `npx typeorm-model-generator -h localhost -d 스키마이름 -u DB유저이름 -x 비밀번호 -e 데이터베이스종류(mysql)` 실행
 
 **참고**
-[typeorm-model-generator](https://www.npmjs.com/package/typeorm-model-generator)
+
+- [typeorm-model-generator](https://www.npmjs.com/package/typeorm-model-generator)
 
 ## Script Description
 
-1. npm run seed:run
+- npm run seed:run
 
-- DB의 sample Data를 넣어주는 script
-- [typeorm-seeding](https://github.com/w3tecch/typeorm-seeding) 모듈을 사용한다.
+  - DB의 sample Data를 넣어주는 script
 
-2. npm run schema:drop
+  - [typeorm-seeding](https://github.com/w3tecch/typeorm-seeding) 모듈을 사용한다.
 
-- DB의 Schema를 날려버린다.
+- npm run schema:drop
 
-3. npm run schema:sync
+  - DB의 Schema를 날려버린다.
 
-- DB의 Schema를 생성 및 동기화
+- npm run schema:sync
 
-4. npm run db:create-migration [파일이름]
+  - DB의 Schema를 생성 및 동기화
 
-- `migration`을 위한 코드를 생성함
-- migration: 테이블과 엔티티를 수정할 때 사용
+- npm run db:create-migration [파일이름]
 
-5. npm run db:generate-migration [파일이름]
+  - `migration`을 위한 코드를 생성함
+  - migration: 테이블과 엔티티를 수정할 때 사용
 
-- query를 자동으로 작성해줌. (`Drop`이 있을 경우 위험)
+- npm run db:generate-migration [파일이름]
 
-6. npm run db:migrate
+  - query를 자동으로 작성해줌. (`Drop`이 있을 경우 위험)
 
-- migrate를 실행하는 스크립트
+- npm run db:migrate
 
-7. npm run db:migrate:revert
+  - migrate를 실행하는 스크립트
 
-- rollback 스크립트
+- npm run db:migrate:revert
+
+  - rollback 스크립트
 
 **참고**
-TypeORM은 ts 파일을 인식할 수 없기 때문에 `npm run typeorm` 스크립트를 활용하였다.
+
+- TypeORM은 ts 파일을 인식할 수 없기 때문에 `npm run typeorm` 스크립트를 활용하였다.
+
+## Error Solution
+
+- `class-valitator` 사용 시 데코레이터의 대소문자 주의
+
+```js
+// Error
+@isEmail()
+email?: string;
+// Success
+@IsEmail()
+email?: string;
+```
+
+**[참고 링크](https://stackoverflow.com/questions/67045344/unable-to-resolve-signature-of-property-decorator-when-called-as-an-expression)**
 
 ## References
 
 - [Hot Reload](https://docs.nestjs.com/recipes/hot-reload#hot-reload)
 - [Configuration](https://docs.nestjs.com/techniques/configuration#getting-started)
 - [OpenAPI(Swagger)](https://docs.nestjs.com/openapi/introduction)
+- [validation](https://docs.nestjs.com/techniques/validation#transform-payload-objects)

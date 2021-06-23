@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import session from 'express-session';
+import { ValidationPipe } from '@nestjs/common';
 
 declare const module: any;
 
@@ -12,6 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
 
+  app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter()); // 모든 컨트롤러의 httpexception 걸러주기
 
   const config = new DocumentBuilder()
