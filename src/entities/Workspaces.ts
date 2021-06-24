@@ -30,7 +30,7 @@ export class Workspaces {
     example: 'workspace name',
     description: '워크스페이스 이름',
   })
-  @Column('varchar', { name: 'name', unique: true, length: 30 })
+  @Column('varchar', { name: 'name', unique: true, length: 30, nullable: true })
   name: string;
 
   @ApiProperty({

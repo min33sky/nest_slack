@@ -5,7 +5,6 @@ import { Connection, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { WorkspaceMembers } from 'src/entities/WorkspaceMembers';
 import { ChannelMembers } from 'src/entities/ChannelMembers';
-import { exception } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -45,6 +44,11 @@ export class UsersService {
     await queryRunner.startTransaction();
 
     try {
+      /**
+       * ? 회원 가입 시 최초 워크스페이스와 채널도 자동으로 설정해준다.
+       * ? DB에 저장하는 방식은 여러가지가 있어서 선호하는 방식을 사용해도 된다.
+       */
+
       const returned = await queryRunner.manager
         .getRepository<Users>(Users)
         .save({
@@ -58,11 +62,6 @@ export class UsersService {
       //   nickname,
       //   password: hashedPassword,
       // });
-
-      /**
-       * ? 회원 가입 시 최초 워크스페이스와 채널도 자동으로 설정해준다.
-       * ? DB에 저장하는 방식은 여러가지가 있어서 선호하는 방식을 사용해도 된다.
-       */
 
       // const workspaceMembers = new WorkspaceMembers();
       const workspaceMembers = this.workspaceMembersRepository.create();

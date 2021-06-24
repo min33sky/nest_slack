@@ -20,21 +20,21 @@ export class WorkspacesController {
     return this.workspacesService.createWorkspace(body.name, body.url, user.id);
   }
 
-  @Get(':url/members')
-  getAllMembersFromWorkspace() {}
+  // @Get(':url/members')
+  // getAllMembersFromWorkspace() {}
 
-  @Post(':url/members')
-  inviteMembersToWorkspace() {}
+  // @Post(':url/members')
+  // inviteMembersToWorkspace() {}
 
-  @Delete(':url/members/:id')
-  kickMemberFromWorkspace() {}
+  // @Delete(':url/members/:id')
+  // kickMemberFromWorkspace() {}
 
-  @Get(':url/members/:id')
-  getMemberInfoInWorkspace() {}
+  // @Get(':url/members/:id')
+  // getMemberInfoInWorkspace() {}
 
-  //? API 설계를 잘못했을 때 코드를 수정하는건 사실상 불가능하다.(이미 사용자가 있을 경우)
-  @Get(':url/users/:id')
-  DEPRECATED_getMemberInfoInWorkspace() {
-    this.getMemberInfoInWorkspace();
-  }
+  // //? API 설계를 잘못했을 때 코드를 수정하는건 사실상 불가능하다.(이미 사용자가 있을 경우)
+  // @Get(':url/users/:id')
+  // DEPRECATED_getMemberInfoInWorkspace() {
+  //   this.getMemberInfoInWorkspace();
+  // }
 }
