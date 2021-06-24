@@ -80,8 +80,11 @@ export class UsersService {
       // });
       const channelMembers = this.channelMembersRepository.create();
       channelMembers.UserId = returned.id;
-      channelMembers.ChannelId = 2;
+      channelMembers.ChannelId = 1;
       await queryRunner.manager.save(channelMembers);
+
+      // Commit
+      await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
       // TODO: Exception을 throw해주면 될 듯
