@@ -157,4 +157,22 @@ export class WorkspacesService {
       await queryRunner.release();
     }
   }
+
+  /**
+   * 워크스페이스 특정 회원 찾기
+   * @param url
+   * @param id
+   */
+  async getWorkspaceMember(url: string, id: number) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .innerJoinAndSelect(
+        'user.Workspaces',
+        'workspaces',
+        'workspaces.url = :url',
+        { url },
+      )
+      .getOne();
+  }
 }
