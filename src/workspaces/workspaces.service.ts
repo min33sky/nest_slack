@@ -1,10 +1,11 @@
 import { WorkspaceMembers } from './../entities/WorkspaceMembers';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Workspaces } from 'src/entities/Workspaces';
 import { Repository, Connection } from 'typeorm';
 import { Channels } from 'src/entities/Channels';
 import { ChannelMembers } from 'src/entities/ChannelMembers';
+import { Users } from 'src/entities/Users';
 
 @Injectable()
 export class WorkspacesService {
@@ -17,6 +18,9 @@ export class WorkspacesService {
     private channelsRepository: Repository<Channels>,
     @InjectRepository(ChannelMembers)
     private channelMembersRepository: Repository<ChannelMembers>,
+    @InjectRepository(Users)
+    private usersRepository: Repository<Users>,
+
     private connection: Connection,
   ) {}
 
@@ -70,6 +74,86 @@ export class WorkspacesService {
       await queryRunner.rollbackTransaction();
       // TODO: Exception을 throw해주면 될 듯
     } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * 현재 워크스페이스의 사람들을 가져오기
+   * @param url
+   */
+  async getWorkspaceMembers(url: string) {
+    this.usersRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.WorkspaceMembers', 'members')
+      .innerJoin('members.Workspace', 'w', 'w.url = :url', { url })
+      .getMany();
+  }
+
+  /**
+   * 워크스페이스에 사람 초대하기
+   * @param url
+   * @param email
+   */
+  async createWorkspaceMembers(url, email) {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+
+    const workspace = await this.workspacesRepository.findOne({
+      where: {
+        url,
+      },
+      /**
+       *? relations 혹은 join으로 조인하기
+       *? innerJoinAndSelect: TypeORM에서 innerJoin은 조인한 테이블을 필터링만 할 뿐 가져오지 않는다.
+       *?                     하지만 innerJoinAndSelect는 조인한 테이블 값까지 함께 가져온다.
+       */
+      // relations: ['Channel'],
+      join: {
+        alias: 'workspace',
+        innerJoinAndSelect: {
+          channels: 'workspace.Channels',
+        },
+      },
+    });
+
+    //? 위의 코드를 QueryBuilder로 작성하기
+    // const workspace = await this.workspacesRepository
+    //   .createQueryBuilder('workspace')
+    //   .where('workspace.url = :url', { url })
+    //   .innerJoinAndSelect('workspace.Channels', 'channels')
+    //   .getOne();
+
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('해당 유저가 존재하지 않습니다.');
+    }
+
+    // 트랜잭션 시작
+    await queryRunner.startTransaction();
+
+    try {
+      const workspaceMember = new WorkspaceMembers();
+      workspaceMember.WorkspaceId = workspace.id;
+      workspaceMember.UserId = user.id;
+
+      await queryRunner.manager.save(workspaceMember);
+
+      const channelMember = new ChannelMembers();
+      channelMember.ChannelId = workspace.Channels.find(
+        (v) => v.name === '일반',
+      ).id;
+      channelMember.UserId = user.id;
+
+      await queryRunner.manager.save(channelMember);
+
+      // 커밋
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      // 롤백
+      await queryRunner.rollbackTransaction();
+    } finally {
+      // 연결 끊기
       await queryRunner.release();
     }
   }

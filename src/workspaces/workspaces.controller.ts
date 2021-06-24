@@ -1,5 +1,5 @@
-import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { User } from 'src/common/decorators/user.decorators';
 import { Users } from 'src/entities/Users';
 import { WorkspacesService } from './workspaces.service';
@@ -10,14 +10,28 @@ import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 export class WorkspacesController {
   constructor(private workspacesService: WorkspacesService) {}
 
+  @ApiOperation({ summary: '내 워크스페이스 가져오기' })
   @Get()
-  getMyWorkspaces(@User() user: Users) {
+  async getMyWorkspaces(@User() user: Users) {
     return this.workspacesService.findByWorkspaces(user.id);
   }
 
+  @ApiOperation({ summary: '워크스페이스 만들기' })
   @Post()
-  createWorkspaces(@User() user: Users, @Body() body: CreateWorkspaceDto) {
+  async createWorkspaces(
+    @User() user: Users,
+    @Body() body: CreateWorkspaceDto,
+  ) {
     return this.workspacesService.createWorkspace(body.name, body.url, user.id);
+  }
+
+  @ApiOperation({ summary: '워크스페이스 멤버 초대하기' })
+  @Post(':url/members')
+  async createWorkspaceMembers(
+    @Param('url') url: string,
+    @Body('email') email,
+  ) {
+    return this.workspacesService.createWorkspaceMembers(url, email);
   }
 
   // @Get(':url/members')
