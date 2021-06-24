@@ -2,6 +2,13 @@
 
 > create nest server
 
+## Install
+
+- npm i
+- npm run schema:sync
+- npm run seed:run
+- npm run start:dev
+
 ## Typeorm 관련 참고
 
 1. 기존 DB가 없을 때는 Schema를 직접 생성한 후 `npm run schema:sync` 실행

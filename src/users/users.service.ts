@@ -52,10 +52,11 @@ export class UsersService {
     workspaceMembers.UserId = returned.id;
     workspaceMembers.WorkspaceId = 1;
     await this.workspaceMembersRepository.save(workspaceMembers);
-    await this.workspaceMembersRepository.save({
-      UserId: returned.id,
-      WorkspaceId: 1,
-    });
+
+    // await this.workspaceMembersRepository.save({
+    //   UserId: returned.id,
+    //   WorkspaceId: 1,
+    // });
     await this.channelMembersRepository.save({
       UserId: returned.id,
       ChannelId: 1,
