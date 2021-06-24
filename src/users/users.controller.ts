@@ -1,5 +1,3 @@
-import { UserDto } from './../common/dto/user.dto';
-import { UsersService } from './users.service';
 import { JoinRequestDto } from './dto/join.request.dto';
 import {
   Body,
@@ -23,6 +21,8 @@ import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { LoggedInGuard } from 'src/auth/logged-in-guard';
 import { NotLoggedInGuard } from 'src/auth/not-logged-in-guard';
 import { Users } from 'src/entities/Users';
+import { UsersService } from './users.service';
+import { UserDto } from 'src/common/dto/user.dto';
 
 @UseInterceptors(UndefinedToNullInterceptor)
 @ApiTags('USER')

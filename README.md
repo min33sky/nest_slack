@@ -50,7 +50,9 @@
 
 ## Error Solution
 
-- `class-valitator` 사용 시 데코레이터의 대소문자 주의
+---
+
+### `class-valitator` 사용 시 데코레이터의 대소문자 주의
 
 ```js
 // Error
@@ -65,6 +67,10 @@ email?: string;
 
 - Error: Authentication strategies must have a name
   - passport-local 대신 passport를 import 했는지 체크
+
+### Cannot add or update a child row: a foreign key constraint fails
+
+- 부모키에 있는 값만 참조할 수 있으니 부모 테이블의 값을 확인해보자
 
 ## References
 
