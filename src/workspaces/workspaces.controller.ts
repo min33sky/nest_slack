@@ -37,7 +37,7 @@ export class WorkspacesController {
   @Post(':url/members')
   async createWorkspaceMembers(
     @Param('url') url: string,
-    @Body('email') email,
+    @Body('email') email: string, // TODO: DTO로 만들자
   ) {
     return this.workspacesService.createWorkspaceMembers(url, email);
   }

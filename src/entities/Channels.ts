@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -21,6 +22,10 @@ export class Channels {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
+  @ApiProperty({
+    example: '수다방',
+    description: '채널명',
+  })
   @Column('varchar', { name: 'name', length: 30 })
   name: string;
 

@@ -4,6 +4,7 @@ import { ChannelChats } from 'src/entities/ChannelChats';
 import { ChannelMembers } from 'src/entities/ChannelMembers';
 import { Channels } from 'src/entities/Channels';
 import { Users } from 'src/entities/Users';
+import { Workspaces } from 'src/entities/Workspaces';
 import { MoreThan, Repository } from 'typeorm';
 
 @Injectable()
@@ -13,6 +14,8 @@ export class ChannelsService {
     private channelsRepository: Repository<Channels>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    @InjectRepository(Workspaces)
+    private workspaceRepository: Repository<Workspaces>,
     @InjectRepository(ChannelMembers)
     private channelMembersRepository: Repository<ChannelMembers>,
     @InjectRepository(ChannelChats)
@@ -52,6 +55,25 @@ export class ChannelsService {
       },
       relations: ['Workspace'],
     });
+  }
+
+  async createWorkspaceChannel(url: string, name: string, myId: number) {
+    const workspace = await this.workspaceRepository.findOne({
+      where: {
+        url,
+      },
+    });
+
+    const channel = new Channels();
+    channel.name = name;
+    channel.WorkspaceId = workspace.id;
+
+    const channelReturned = await this.channelsRepository.save(channel);
+
+    const channelMember = new ChannelMembers();
+    channelMember.UserId = myId;
+    channelMember.ChannelId = channelReturned.id;
+    await this.channelMembersRepository.save(channelMember);
   }
 
   async getWorkspaceChannelMembers(url: string, name: string) {
@@ -97,6 +119,14 @@ export class ChannelsService {
     await this.channelMembersRepository.save(channelMember);
   }
 
+  /**
+   * 워크스페이스 특정 채널 채팅 모두 가져오기
+   * @param url
+   * @param name
+   * @param perPage
+   * @param page
+   * @returns
+   */
   async getWorkspaceChannelChats(
     url: string,
     name: string,
@@ -118,6 +148,14 @@ export class ChannelsService {
       .getMany();
   }
 
+  /**
+   * TODO: 웹소켓 작성 필요
+   * 워크스페이스 특정 채널 채팅 모두 가져오기
+   * @param url
+   * @param name
+   * @param content
+   * @param myId
+   */
   async createWorkspaceChannelChats(
     url: string,
     name: string,
@@ -141,6 +179,13 @@ export class ChannelsService {
     // TODO 웹소켓 코드 추가
   }
 
+  /**
+   * 안 읽은 메세지 개수 가져오기
+   * @param url
+   * @param name
+   * @param after 마지막 읽은 메세지의 시간
+   * @returns
+   */
   async getChannelUnreadsCount(url, name, after) {
     const channel = await this.channelsRepository
       .createQueryBuilder('channel')

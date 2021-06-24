@@ -1,8 +1,17 @@
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { User } from 'src/common/decorators/user.decorators';
 import { Users } from 'src/entities/Users';
+import { CreateChannelDto } from './dto/create-channel.dto';
 
 @ApiTags('CHANNELS')
 @Controller('api/workspaces/:url/channels')
@@ -24,23 +33,86 @@ export class ChannelsController {
     return this.channelsService.getWorkspaceChannel(url, name);
   }
 
-  // @Get()
-  // getAllChannels() {}
-  // @Post()
-  // createChannel() {}
-  // @Get(':name')
-  // getSpecificChannel() {}
-  // @Get(':name/chats')
-  // getChats(@Query() query, @Param() param) {
-  //   console.log(query.perPage, query.page);
-  //   console.log(param.name, param.url);
-  // }
-  // @Post(':name/chat')
-  // postChat(@Body() body) {
-  //   return;
-  // }
-  // @Get(':name/members')
-  // getAllMembers() {}
-  // @Post(':name/members')
-  // inviteMembers() {}
+  @ApiOperation({ summary: '워크스페이스 채널 만들기' })
+  @Post()
+  async createWorkspaceChannels(
+    @Param('url') url: string,
+    @Body() body: CreateChannelDto,
+    @User() user: Users,
+  ) {
+    return this.channelsService.createWorkspaceChannel(url, body.name, user.id);
+  }
+
+  @ApiOperation({ summary: '워크스페이스 채널 멤버 가져오기' })
+  @Get(':name/members')
+  async getWorkspaceChannelMembers(
+    @Param('url') url: string,
+    @Param('name') name: string,
+  ) {
+    return this.channelsService.getWorkspaceChannelMembers(url, name);
+  }
+
+  @ApiOperation({ summary: '워크스페이스 채널 멤버 초대하기' })
+  @Post(':name/members')
+  async createWorkspaceMembers(
+    @Param('url') url: string,
+    @Param('name') name: string,
+    @Body('email') email,
+  ) {
+    return this.channelsService.createWorkspaceChannelMembers(url, name, email);
+  }
+
+  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 모두 가져오기' })
+  @Get(':name/chats')
+  async getWorkspaceChannelChats(
+    @Param('url') url,
+    @Param('name') name,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
+  ) {
+    return this.channelsService.getWorkspaceChannelChats(
+      url,
+      name,
+      perPage,
+      page,
+    );
+  }
+
+  //TODO: 미완성
+  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 생성하기' })
+  @Post(':name/chats')
+  async createWorkspaceChannelChats(
+    @Param('url') url,
+    @Param('name') name,
+    @Body('content') content,
+    @User() user: Users,
+  ) {
+    return this.channelsService.createWorkspaceChannelChats(
+      url,
+      name,
+      content,
+      user.id,
+    );
+  }
+
+  // TODO: 작성중
+  @Post(':url/channels/:name/images')
+  async createWorkspaceChannelImages() {
+    // return this.channelsService.createWorkspaceChannelImages(
+    //   url,
+    //   name,
+    //   files,
+    //   user.id,
+    // );
+  }
+
+  @ApiOperation({ summary: '안 읽은 채팅 메세지 개수 가져오기' })
+  @Get(':name/unreads')
+  async getUnreads(
+    @Param('url') url,
+    @Param('name') name,
+    @Query('after', ParseIntPipe) after: number,
+  ) {
+    return this.channelsService.getChannelUnreadsCount(url, name, after);
+  }
 }
