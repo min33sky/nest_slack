@@ -88,12 +88,12 @@ export class ChannelsController {
     @Body() body: PostChatDto,
     @User() user: Users,
   ) {
-    return this.channelsService.createWorkspaceChannelChats(
+    return this.channelsService.createWorkspaceChannelChats({
       url,
       name,
-      body.content,
-      user.id,
-    );
+      content: body.content,
+      user,
+    });
   }
 
   // TODO: 작성중

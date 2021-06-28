@@ -6,6 +6,7 @@ import { Channels } from 'src/entities/Channels';
 import { Users } from 'src/entities/Users';
 import { Workspaces } from 'src/entities/Workspaces';
 import { MoreThan, Repository } from 'typeorm';
+import { ChatData } from './interface/chat.interface';
 
 @Injectable()
 export class ChannelsService {
@@ -151,17 +152,8 @@ export class ChannelsService {
   /**
    * TODO: 웹소켓 작성 필요
    * 워크스페이스 특정 채널 채팅 모두 가져오기
-   * @param url
-   * @param name
-   * @param content
-   * @param myId
    */
-  async createWorkspaceChannelChats(
-    url: string,
-    name: string,
-    content: string,
-    myId: number,
-  ) {
+  async createWorkspaceChannelChats({ content, name, user, url }: ChatData) {
     const channel = await this.channelsRepository
       .createQueryBuilder('channel')
       .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
@@ -176,7 +168,7 @@ export class ChannelsService {
 
     const chats = new ChannelChats();
     chats.content = content;
-    chats.UserId = myId;
+    chats.UserId = user.id;
     chats.ChannelId = channel.id;
     const savedChat = await this.channelChatsRepository.save(chats);
     // 쿼리를 날릴 필요없이 유저정보와 채널정보를 넣어주는게 낫겠다.
