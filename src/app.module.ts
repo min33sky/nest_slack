@@ -30,6 +30,7 @@ import { Users } from './entities/Users';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    //? 모든 라우팅에 대해서 로그 미들웨어를 적용한다.
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 }

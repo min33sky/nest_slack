@@ -170,12 +170,25 @@ export class ChannelsService {
       .where('channel.name = :name', { name })
       .getOne();
 
+    if (!channel) {
+      throw new NotFoundException('채널이 존재하지 않습니다.');
+    }
+
     const chats = new ChannelChats();
     chats.content = content;
     chats.UserId = myId;
     chats.ChannelId = channel.id;
-    const saveChat = await this.channelChatsRepository.save(chats);
+    const savedChat = await this.channelChatsRepository.save(chats);
+    // 쿼리를 날릴 필요없이 유저정보와 채널정보를 넣어주는게 낫겠다.
+    // chats.Channel = channel;
+    // chats.User = User; //? myId대산 user를 가져오자
 
+    const chatWithUser = await this.channelChatsRepository.findOne({
+      where: {
+        id: savedChat.id,
+      },
+      relations: ['User', 'Channel'],
+    });
     // TODO 웹소켓 코드 추가
   }
 

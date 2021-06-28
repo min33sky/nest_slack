@@ -12,6 +12,7 @@ import { ChannelsService } from './channels.service';
 import { User } from 'src/common/decorators/user.decorators';
 import { Users } from 'src/entities/Users';
 import { CreateChannelDto } from './dto/create-channel.dto';
+import { PostChatDto } from './dto/post-chat.dto';
 
 @ApiTags('CHANNELS')
 @Controller('api/workspaces/:url/channels')
@@ -78,19 +79,19 @@ export class ChannelsController {
     );
   }
 
-  //TODO: 미완성
+  //TODO: 미완성 (매개변수도 객체로 바꾸자)
   @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 생성하기' })
   @Post(':name/chats')
   async createWorkspaceChannelChats(
     @Param('url') url,
     @Param('name') name,
-    @Body('content') content,
+    @Body() body: PostChatDto,
     @User() user: Users,
   ) {
     return this.channelsService.createWorkspaceChannelChats(
       url,
       name,
-      content,
+      body.content,
       user.id,
     );
   }

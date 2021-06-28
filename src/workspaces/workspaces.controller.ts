@@ -33,6 +33,12 @@ export class WorkspacesController {
     return this.workspacesService.createWorkspace(body.name, body.url, user.id);
   }
 
+  @ApiOperation({ summary: '워크스페이스 멤버 가져오기' })
+  @Get(':url/members')
+  getAllMembersFromWorkspace(@Param('url') url: string) {
+    return this.workspacesService.getWorkspaceMembers(url);
+  }
+
   @ApiOperation({ summary: '워크스페이스 멤버 초대하기' })
   @Post(':url/members')
   async createWorkspaceMembers(
@@ -50,9 +56,6 @@ export class WorkspacesController {
   ) {
     return this.workspacesService.getWorkspaceMember(url, id);
   }
-
-  // @Get(':url/members')
-  // getAllMembersFromWorkspace() {}
 
   // @Post(':url/members')
   // inviteMembersToWorkspace() {}
