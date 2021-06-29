@@ -1,3 +1,4 @@
+import { ChatImage } from './interface/chatImage.interface';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChannelChats } from 'src/entities/ChannelChats';
@@ -5,6 +6,7 @@ import { ChannelMembers } from 'src/entities/ChannelMembers';
 import { Channels } from 'src/entities/Channels';
 import { Users } from 'src/entities/Users';
 import { Workspaces } from 'src/entities/Workspaces';
+import { EventsGateway } from 'src/events/events.gateway';
 import { MoreThan, Repository } from 'typeorm';
 import { ChatData } from './interface/chat.interface';
 
@@ -21,6 +23,8 @@ export class ChannelsService {
     private channelMembersRepository: Repository<ChannelMembers>,
     @InjectRepository(ChannelChats)
     private channelChatsRepository: Repository<ChannelChats>,
+
+    private eventsGateway: EventsGateway,
   ) {}
 
   async findById(id: number) {
@@ -144,14 +148,13 @@ export class ChannelsService {
       })
       .innerJoinAndSelect('channelChats.User', 'user')
       .orderBy('channelChats.createdAt', 'DESC')
-      .take(perPage) // limit
+      .take(perPage) // limitz
       .skip(perPage * (page - 1))
       .getMany();
   }
 
   /**
-   * TODO: 웹소켓 작성 필요
-   * 워크스페이스 특정 채널 채팅 모두 가져오기
+   * 채팅 메세지 전송
    */
   async createWorkspaceChannelChats({ content, name, user, url }: ChatData) {
     const channel = await this.channelsRepository
@@ -181,7 +184,44 @@ export class ChannelsService {
       },
       relations: ['User', 'Channel'],
     });
-    // TODO 웹소켓 코드 추가
+
+    // socket.io로 워크스페이스 + 채널 사용자에게 전송
+    this.eventsGateway.server
+      .to(`/ws-${url}-${channel.id}`)
+      .emit('message', chatWithUser);
+  }
+
+  /**
+   * 이미지를 채팅방에 올리기
+   * @param param0
+   */
+  async createWorkspaceChannelImage({ files, name, url, user }: ChatImage) {
+    console.log(files);
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .where('channel.name = :name', { name })
+      .getOne();
+
+    if (!channel) {
+      throw new NotFoundException('채널이 존재하지 않습니다.');
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const chats = new ChannelChats();
+      chats.content = files[i].path;
+      chats.UserId = user.id;
+      chats.ChannelId = channel.id;
+      chats.Channel = channel;
+      chats.User = user;
+      const savedChat = await this.channelChatsRepository.save(chats);
+
+      this.eventsGateway.server
+        .to(`/ws-${url}-${channel.id}`)
+        .emit('message', savedChat);
+    }
   }
 
   /**

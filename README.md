@@ -1,4 +1,4 @@
-# Nest Practice
+# Nest Server
 
 > create nest server
 

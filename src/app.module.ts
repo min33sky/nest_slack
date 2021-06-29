@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import ormconfig from '../ormconfig';
 import { AuthModule } from './auth/auth.module';
 import { Users } from './entities/Users';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { Users } from './entities/Users';
     WorkspacesModule,
     ChannelsModule,
     DmsModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,12 +7,25 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { User } from 'src/common/decorators/user.decorators';
 import { Users } from 'src/entities/Users';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { PostChatDto } from './dto/post-chat.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+try {
+  fs.readFileSync('uploads');
+} catch (error) {
+  console.log('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
+  fs.mkdirSync('uploads');
+}
 
 @ApiTags('CHANNELS')
 @Controller('api/workspaces/:url/channels')
@@ -79,7 +92,6 @@ export class ChannelsController {
     );
   }
 
-  //TODO: 미완성 (매개변수도 객체로 바꾸자)
   @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 생성하기' })
   @Post(':name/chats')
   async createWorkspaceChannelChats(
@@ -96,15 +108,34 @@ export class ChannelsController {
     });
   }
 
-  // TODO: 작성중
-  @Post(':url/channels/:name/images')
-  async createWorkspaceChannelImages() {
-    // return this.channelsService.createWorkspaceChannelImages(
-    //   url,
-    //   name,
-    //   files,
-    //   user.id,
-    // );
+  @ApiOperation({ summary: '워크스페이스 특정 채널 이미지 업로드하기' })
+  @UseInterceptors(
+    FilesInterceptor('image', 10, {
+      storage: multer.diskStorage({
+        destination(req, file, cb) {
+          cb(null, 'uploads/');
+        },
+        filename(req, file, cb) {
+          const ext = path.extname(file.originalname);
+          cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  )
+  @Post(':name/images')
+  async createWorkspaceChannelImages(
+    @Param('url') url: string,
+    @Param('name') name: string,
+    @User() user: Users,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.channelsService.createWorkspaceChannelImage({
+      files,
+      name,
+      url,
+      user,
+    });
   }
 
   @ApiOperation({ summary: '안 읽은 채팅 메세지 개수 가져오기' })

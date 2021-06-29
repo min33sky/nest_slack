@@ -6,15 +6,37 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import session from 'express-session';
 import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import path from 'path';
 
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT || 3000;
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter()); // 모든 컨트롤러의 httpexception 걸러주기
+
+  // Cors
+  if (process.env.NODE_ENV === 'production') {
+    app.enableCors({
+      origin: ['https://your_domain'],
+      credentials: true,
+    });
+  } else {
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
+  }
+
+  //? Static file middleware [Express 전용]
+  // express 전용이므로 아래의 코드를 사용하는 것이 더 낫다
+  // https://docs.nestjs.com/recipes/serve-static#serve-static
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads',
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Slack_Clone API')
