@@ -52,7 +52,7 @@
     },
     // 해당 확장자 모듈 가져오도록 등록
     "import/resolver": {
-      // "typescript": {},
+      "typescript": {},
       "node": {
         "extensions": [".js", ".jsx", ".ts", ".tsx"]
         // "paths": ["src"]
