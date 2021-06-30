@@ -13,6 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiResponse,
@@ -26,6 +27,7 @@ import { NotLoggedInGuard } from 'src/auth/not-logged-in-guard';
 import { Users } from 'src/entities/Users';
 import { UsersService } from './users.service';
 import { UserDto } from 'src/common/dto/user.dto';
+import { LoginResponseDto } from './dto/login.response.dto';
 
 @UseInterceptors(UndefinedToNullInterceptor)
 @ApiTags('USER')
@@ -33,8 +35,9 @@ import { UserDto } from 'src/common/dto/user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiCookieAuth('connect.sid')
   @ApiOkResponse({
-    type: UserDto,
+    type: UserDto, // TODO: 패스워드는 빼자
     description: '성공',
   })
   @ApiResponse({
@@ -42,14 +45,14 @@ export class UsersController {
     description: '서버 에러',
   })
   @ApiOperation({
-    summary: '내 정보 조회',
+    summary: '내 정보 조회하기',
   })
   @Get()
-  getUsers(@User() user) {
+  getUsers(@User() user: Users) {
     return user || false;
   }
 
-  @UseGuards(new NotLoggedInGuard())
+  @UseGuards(NotLoggedInGuard)
   @ApiOperation({
     summary: '회원가입',
   })
@@ -57,9 +60,7 @@ export class UsersController {
   async join(@Body() data: JoinRequestDto) {
     const user = await this.usersService.findByEmail(data.email);
 
-    if (user) {
-      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
-    }
+    if (user) throw new UnauthorizedException('이미 존재하는 이메일입니다.');
 
     const result = await this.usersService.join(
       data.email,
@@ -75,19 +76,21 @@ export class UsersController {
   }
 
   @ApiOkResponse({
-    type: UserDto,
-    description: '성공',
+    type: LoginResponseDto,
+    description: '로그인 성공',
   })
   @ApiOperation({
     summary: '로그인 API',
   })
   @UseGuards(LocalAuthGuard)
+  @UseGuards(NotLoggedInGuard)
   @Post('login')
-  login(@User() user: Users) {
+  async login(@User() user: Users) {
     return user;
   }
 
-  @UseGuards(new LoggedInGuard())
+  @ApiCookieAuth('connect.sid')
+  @UseGuards(LoggedInGuard)
   @ApiOperation({
     summary: '로그아웃',
   })

@@ -16,15 +16,19 @@ export class AuthService {
       select: ['id', 'email', 'password'],
     });
     console.log(email, password, user);
+
     if (!user) {
       return null;
     }
+
     const result = await bcrypt.compare(password, user.password);
+
     if (result) {
       // delete user.password
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }
+
     return null;
   }
 }
