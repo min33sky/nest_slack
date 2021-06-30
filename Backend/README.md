@@ -79,6 +79,38 @@ email?: string;
 
 - 부모키에 있는 값만 참조할 수 있으니 부모 테이블의 값을 확인해보자
 
+### JEST 관련 에러
+
+- 절대 경로를 사용할 때 모듈 에러가 나는 경우
+
+```json
+"jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    /**
+    * 아래 코드를 추가해준다.
+    * <rootDir>은 src 디렉토리를 가리킨다.
+    */
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
+
+```
+
 ## References
 
 - [Hot Reload](https://docs.nestjs.com/recipes/hot-reload#hot-reload)

@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 import { Connection, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { WorkspaceMembers } from 'src/entities/WorkspaceMembers';
@@ -19,6 +19,20 @@ export class UsersService {
   ) {}
 
   /**
+   * 이메일로 회원 찾기
+   * @param email
+   * @returns
+   */
+  async findByEmail(email: string) {
+    return this.userRepository.findOne({
+      where: {
+        email,
+      },
+      select: ['id', 'email', 'password'],
+    });
+  }
+
+  /**
    * 회원 가입
    * @param email
    * @param nickname
@@ -29,15 +43,15 @@ export class UsersService {
 
     await queryRunner.connect();
 
-    const user = await this.userRepository.findOne({
-      where: {
-        email,
-      },
-    });
+    // const user = await this.userRepository.findOne({
+    //   where: {
+    //     email,
+    //   },
+    // });
 
-    if (user) {
-      throw new UnauthorizedException('이미 존재하는 회원입니다.');
-    }
+    // if (user) {
+    //   throw new UnauthorizedException('이미 존재하는 회원입니다.');
+    // }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -86,10 +100,12 @@ export class UsersService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      // TODO: Exception을 throw해주면 될 듯
+      return false;
     } finally {
       await queryRunner.release();
     }
+
+    console.log('################ 실행 되냐?? ######################');
 
     return true;
   }

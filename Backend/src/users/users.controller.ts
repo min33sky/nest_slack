@@ -2,10 +2,13 @@ import { JoinRequestDto } from './dto/join.request.dto';
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
+  NotFoundException,
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -52,7 +55,23 @@ export class UsersController {
   })
   @Post()
   async join(@Body() data: JoinRequestDto) {
-    await this.usersService.join(data.email, data.nickname, data.password);
+    const user = await this.usersService.findByEmail(data.email);
+
+    if (user) {
+      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
+    }
+
+    const result = await this.usersService.join(
+      data.email,
+      data.nickname,
+      data.password,
+    );
+
+    if (result) {
+      return 'ok';
+    } else {
+      throw new ForbiddenException();
+    }
   }
 
   @ApiOkResponse({
