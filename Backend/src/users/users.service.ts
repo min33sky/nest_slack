@@ -39,19 +39,12 @@ export class UsersService {
    * @param password
    */
   async join(email: string, nickname: string, password: string) {
+    /**
+     *? 연속적인 DB 작업이 많기 때문에 트랜잭션으로 일관성을 지켜주자
+     */
     const queryRunner = this.connection.createQueryRunner();
 
     await queryRunner.connect();
-
-    // const user = await this.userRepository.findOne({
-    //   where: {
-    //     email,
-    //   },
-    // });
-
-    // if (user) {
-    //   throw new UnauthorizedException('이미 존재하는 회원입니다.');
-    // }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -71,26 +64,11 @@ export class UsersService {
           password: hashedPassword,
         });
 
-      // const returned = await this.userRepository.save({
-      //   email,
-      //   nickname,
-      //   password: hashedPassword,
-      // });
-
-      // const workspaceMembers = new WorkspaceMembers();
       const workspaceMembers = this.workspaceMembersRepository.create();
       workspaceMembers.UserId = returned.id;
       workspaceMembers.WorkspaceId = 1;
       await queryRunner.manager.save(workspaceMembers);
 
-      // await this.workspaceMembersRepository.save({
-      //   UserId: returned.id,
-      //   WorkspaceId: 1,
-      // });
-      // await this.channelMembersRepository.save({
-      //   UserId: returned.id,
-      //   ChannelId: 2,
-      // });
       const channelMembers = this.channelMembersRepository.create();
       channelMembers.UserId = returned.id;
       channelMembers.ChannelId = 1;
@@ -104,8 +82,6 @@ export class UsersService {
     } finally {
       await queryRunner.release();
     }
-
-    console.log('################ 실행 되냐?? ######################');
 
     return true;
   }

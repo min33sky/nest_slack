@@ -55,9 +55,34 @@
 
 - TypeORM은 ts 파일을 인식할 수 없기 때문에 `npm run typeorm` 스크립트를 활용하였다.
 
-## Error Solution
+--
+
+## Nest Coding
+
+- Entity를 DB에 저장하는 방식
+
+```ts
+// 1. repository의 save method에 Entity 객체를 직접 넣어 주기
+const returned = await this.userRepository.save({
+  email,
+  nickname,
+  password: hashedPassword,
+});
+
+// 2. Entity 객체를 직접 생성해서 저장하기
+const workspaceMembers = new WorkspaceMembers();
+workspaceMembers.UserId = returned.id;
+workspaceMembers.WorkspaceId = 1;
+
+// 3.repositorydml create()를 사용하여 Entity 생성 후 저장하기
+const channelMembers = this.channelMembersRepository.create();
+channelMembers.UserId = returned.id;
+channelMembers.ChannelId = 1;
+```
 
 ---
+
+## Error Solution
 
 ### `class-valitator` 사용 시 데코레이터의 대소문자 주의
 
