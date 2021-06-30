@@ -1,4 +1,5 @@
 import useInput from '@hooks/useInput';
+import axios, { AxiosError } from 'axios';
 import React, { useState, useCallback } from 'react';
 
 import { Link } from 'react-router-dom';
@@ -26,7 +27,7 @@ export default function Signup() {
   const [mismatchError, setMismatchError] = useState(false); // 패스워드 일치 여부
   const [signUpErrorMessage, setSignUpErrorMessage] = useState('');
   const [signUpSuccess, setSignUpSuccess] = useState(false);
-  // const [formValidation, setFormValidation] = useState(true); //? 최종 폼 검증에 사용할 상태값
+  const [isValid, setIsValid] = useState(true); // 폼 유효성 상태
 
   /**
    * 패스워드 입력 및 검증 핸들러
@@ -48,10 +49,46 @@ export default function Signup() {
   /**
    * 회원 가입 핸들러
    */
-  const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('회원 가입');
-  }, []);
+  const onSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setSignUpErrorMessage('');
+      setSignUpSuccess(false);
+      setIsValid(true);
+
+      if (
+        !email ||
+        !email.trim() ||
+        !nickname ||
+        !nickname.trim() ||
+        !password ||
+        !password.trim() ||
+        !passwordCheck ||
+        !passwordCheck.trim()
+      ) {
+        setIsValid(false);
+        return;
+      }
+
+      if (!mismatchError) {
+        axios
+          .post('/api/users', {
+            email,
+            nickname,
+            password,
+          })
+          .then((_response) => {
+            setSignUpSuccess(true);
+            // TODO: 바로 로그인 요청을 보내자.
+          })
+          .catch((error: AxiosError) => {
+            setSignUpErrorMessage(error.response?.data.message);
+          })
+          .finally(() => {});
+      }
+    },
+    [email, mismatchError, nickname, password, passwordCheck]
+  );
 
   return (
     <Container>
@@ -59,12 +96,20 @@ export default function Signup() {
 
       <Form onSubmit={onSubmit}>
         <Label>
-          <span>이메일 주소</span>
-          <Input type="email" name="email" id="email" value={email} onChange={onChangeEmail} />
+          <label htmlFor="email">이메일 주소</label>
+          <Input
+            type="email"
+            name="email"
+            id="email"
+            value={email}
+            onChange={onChangeEmail}
+            autoFocus
+          />
+          {!isValid && !email && <ErrorMessage>이메일을 입력해주세요.</ErrorMessage>}
         </Label>
 
         <Label>
-          <span>닉네임</span>
+          <label htmlFor="nickname">닉네임</label>
           <Input
             type="text"
             name="nickname"
@@ -72,21 +117,24 @@ export default function Signup() {
             value={nickname}
             onChange={onChangeNickname}
           />
+          {!isValid && !nickname && <ErrorMessage>닉네임을 입력해주세요.</ErrorMessage>}
         </Label>
 
         <Label>
-          <span>비밀번호</span>
+          <label htmlFor="password">비밀번호</label>
           <Input
             type="password"
             name="password"
             id="password"
             value={password}
             onChange={onChangePasswordAndCheck}
+            placeholder={isValid ? '비밀번호를 입력하세요' : '비밀번호 오류'}
           />
+          {!isValid && !password && <ErrorMessage>비밀번호를 입력해주세요.</ErrorMessage>}
         </Label>
 
         <Label>
-          <span>비밀번호 확인</span>
+          <label htmlFor="passwordCheck">비밀번호 확인</label>
           <div>
             <Input
               type="password"
@@ -95,7 +143,9 @@ export default function Signup() {
               value={passwordCheck}
               onChange={onChangePasswordAndCheck}
             />
-            {!nickname && <ErrorMessage>닉네임을 입력해주세요.</ErrorMessage>}
+            {!isValid && !passwordCheck && (
+              <ErrorMessage>비밀번호 확인을 입력해주세요.</ErrorMessage>
+            )}
             {mismatchError && <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>}
             {signUpErrorMessage && <ErrorMessage>{signUpErrorMessage}</ErrorMessage>}
             {signUpSuccess && <Success>회원가입 완료! 로그인해주세요.</Success>}

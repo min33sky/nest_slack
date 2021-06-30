@@ -44,7 +44,9 @@
     "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies,
 
     "consistent-return": "off",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    // label 사용할 때 생기는 경고
+    "jsx-a11y/label-has-associated-control": "off"
   },
   "settings": {
     "import/parsers": {

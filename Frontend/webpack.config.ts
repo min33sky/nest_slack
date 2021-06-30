@@ -89,12 +89,12 @@ const config: webpack.Configuration = {
     historyApiFallback: true, // ? react-router (서버는 localhost:3090 주소밖에 모르지만 이 설정을 통해 /xxx 와 같은 주소로 라우팅이 가능하다)
     port: 3090,
     publicPath: '/dist/',
-    // proxy: {
-    //   '/api/': {
-    //     target: 'http://localhost:3095',
-    //     changeOrigin: true,
-    //   },
-    // },
+    proxy: {
+      '/api/': {
+        target: 'http://localhost:3095', // CORS 해결
+        changeOrigin: true,
+      },
+    },
   },
 };
 

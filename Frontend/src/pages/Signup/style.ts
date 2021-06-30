@@ -19,9 +19,9 @@ export const Form = styled.form`
   max-width: 400px;
 `;
 
-export const Label = styled.label`
-  margin-bottom: 16px;
-  & > span {
+export const Label = styled.div`
+  height: 100px;
+  & > label {
     display: block;
     text-align: left;
     padding-bottom: 8px;
@@ -38,7 +38,7 @@ export const Input = styled.input`
   border: 1px solid var(--saf-0);
   transition: border 80ms ease-out, box-shadow 80ms ease-out;
   box-sizing: border-box;
-  margin: 0 0 20px;
+  /* margin: 0 0 20px; */
   width: 100%;
   color: rgba(var(--sk_primary_foreground, 29, 28, 29), 1);
   background-color: rgba(var(--sk_primary_background, 255, 255, 255), 1);
@@ -100,7 +100,7 @@ export const LinkContainer = styled.p`
 
 export const ErrorMessage = styled.div`
   color: #e01e5a;
-  margin: 8px 0 16px;
+  /* margin: 8px 0 16px; */
   font-weight: bold;
 `;
 
