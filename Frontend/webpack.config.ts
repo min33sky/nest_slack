@@ -52,7 +52,7 @@ const config: webpack.Configuration = {
           env: {
             // @emotion/babel-plugin, react-hot-loading
             development: {
-              plugins: ['react-refresh/babel'],
+              plugins: [['@emotion', { sourceMap: true }], 'react-refresh/babel'],
             },
             // production: {
             //   plugins: ['@emotion'],
