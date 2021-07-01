@@ -4,7 +4,6 @@ import {
   Controller,
   ForbiddenException,
   Get,
-  NotFoundException,
   Post,
   Req,
   Res,
@@ -28,6 +27,7 @@ import { Users } from 'src/entities/Users';
 import { UsersService } from './users.service';
 import { UserDto } from 'src/common/dto/user.dto';
 import { LoginResponseDto } from './dto/login.response.dto';
+import { UserResponseDTo } from './dto/user.response.dto';
 
 @UseInterceptors(UndefinedToNullInterceptor)
 @ApiTags('USER')
@@ -37,7 +37,7 @@ export class UsersController {
 
   @ApiCookieAuth('connect.sid')
   @ApiOkResponse({
-    type: UserDto, // TODO: 패스워드는 빼자
+    type: UserResponseDTo,
     description: '성공',
   })
   @ApiResponse({
@@ -49,7 +49,8 @@ export class UsersController {
   })
   @Get()
   getUsers(@User() user: Users) {
-    return user || false;
+    // return user || false;
+    return user;
   }
 
   @UseGuards(NotLoggedInGuard)

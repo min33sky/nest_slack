@@ -8,12 +8,18 @@ import {
   Label,
   LinkContainer,
 } from '@pages/Signup/style';
+import fetcher from '@utils/fetcher';
 import axios, { AxiosError } from 'axios';
 import React, { useCallback, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import useSWR from 'swr';
 
 export default function Login() {
+  const { data: userData, revalidate } = useSWR<{ email: string; id: number; nickname: string }>(
+    '/api/users',
+    fetcher
+  ); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
   const { value: email, handler: onChangeEmail } = useInput('');
   const { value: password, handler: onChangePassword } = useInput('');
   const [loginError, setLoginError] = useState(false);
@@ -23,27 +29,24 @@ export default function Login() {
       e.preventDefault();
       setLoginError(false);
 
-      // ? 인풋 검증하기
-      // if (!email || !email.trim() || !password || !password.trim()) {
-      //   setLoginError(true);
-      //   return;
-      // }
+      if (!email || !email.trim() || !password || !password.trim()) {
+        setLoginError(true);
+        return;
+      }
 
-      // ? 로그인 작업
       axios
         .post('/api/users/login', { email, password })
-        .then((response) => {
-          console.log('로그인 성공');
+        .then((_response) => {
+          revalidate();
         })
-        .catch((error: AxiosError) => {
-          console.log(error.response);
+        .catch((_error: AxiosError) => {
           setLoginError(true);
         });
-
-      console.log('로그인');
     },
-    [email, password]
+    [email, password, revalidate]
   );
+
+  if (userData) return <Redirect to="/workspace/channel" />;
 
   return (
     <Container>
