@@ -1,8 +1,10 @@
 import useInput from '@hooks/useInput';
+import { UserInfo } from '@typings/user';
 import axios, { AxiosError } from 'axios';
 import React, { useState, useCallback } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import useSWR from 'swr';
 import {
   Button,
   Container,
@@ -20,6 +22,7 @@ import {
  * @returns page for sign-up
  */
 export default function Signup() {
+  const { data: userData } = useSWR<UserInfo>('/api/users');
   const { value: email, handler: onChangeEmail } = useInput('');
   const { value: nickname, handler: onChangeNickname } = useInput('');
   const { value: password, setValue: setPassword } = useInput('');
@@ -89,6 +92,14 @@ export default function Signup() {
     },
     [email, mismatchError, nickname, password, passwordCheck]
   );
+
+  if (!userData) {
+    return <p>로딩중..........</p>;
+  }
+
+  if (userData) {
+    return <Redirect to="/workspace/channel" />;
+  }
 
   return (
     <Container>
