@@ -8,24 +8,27 @@ import {
   Label,
   LinkContainer,
 } from '@pages/Signup/style';
+import { UserInfo } from '@typings/user';
 import fetcher from '@utils/fetcher';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 
 import { Link, Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 
+/**
+ * 로그인 페이지
+ * /login
+ * @returns
+ */
 export default function Login() {
-  const { data: userData, revalidate } = useSWR<{ email: string; id: number; nickname: string }>(
-    '/api/users',
-    fetcher
-  ); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
+  const { data: userData, mutate } = useSWR<UserInfo | boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
   const { value: email, handler: onChangeEmail } = useInput('');
   const { value: password, handler: onChangePassword } = useInput('');
   const [loginError, setLoginError] = useState(false);
 
   const onSubmit = useCallback(
-    (e: React.ChangeEvent<HTMLFormElement>) => {
+    async (e: React.ChangeEvent<HTMLFormElement>) => {
       e.preventDefault();
       setLoginError(false);
 
@@ -34,17 +37,17 @@ export default function Login() {
         return;
       }
 
-      axios
-        .post('/api/users/login', { email, password })
-        .then((_response) => {
-          revalidate();
-        })
-        .catch((_error: AxiosError) => {
-          setLoginError(true);
-        });
+      try {
+        const response = await axios.post('/api/users/login', { email, password });
+        mutate(response.data, false); // ? false: 재검증 요청을 보내지 않는다. true: 재검증 요청을 보냄.
+      } catch (error: unknown) {
+        setLoginError(true);
+      }
     },
-    [email, password, revalidate]
+    [email, password, mutate]
   );
+
+  console.log('userdata: ', typeof userData, userData);
 
   if (userData) return <Redirect to="/workspace/channel" />;
 

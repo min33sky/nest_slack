@@ -25,9 +25,8 @@ import { LoggedInGuard } from 'src/auth/logged-in-guard';
 import { NotLoggedInGuard } from 'src/auth/not-logged-in-guard';
 import { Users } from 'src/entities/Users';
 import { UsersService } from './users.service';
-import { UserDto } from 'src/common/dto/user.dto';
 import { LoginResponseDto } from './dto/login.response.dto';
-import { UserResponseDTo } from './dto/user.response.dto';
+import { UserResponseDto } from './dto/user.response.dto';
 
 @UseInterceptors(UndefinedToNullInterceptor)
 @ApiTags('USER')
@@ -37,7 +36,7 @@ export class UsersController {
 
   @ApiCookieAuth('connect.sid')
   @ApiOkResponse({
-    type: UserResponseDTo,
+    type: UserResponseDto,
     description: '성공',
   })
   @ApiResponse({
@@ -49,8 +48,9 @@ export class UsersController {
   })
   @Get()
   getUsers(@User() user: Users) {
-    // return user || false;
-    return user;
+    return user || false;
+    // console.log('user ---> ', user);
+    // return user;
   }
 
   @UseGuards(NotLoggedInGuard)
