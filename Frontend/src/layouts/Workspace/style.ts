@@ -2,8 +2,12 @@ import styled from '@emotion/styled';
 
 export const RightMenu = styled.div`
   float: right;
+  cursor: pointer;
 `;
 
+/**
+ * 워크스페이스 헤더
+ */
 export const Header = styled.header`
   height: 38px;
   background: #350d36;
@@ -13,6 +17,9 @@ export const Header = styled.header`
   text-align: center;
 `;
 
+/**
+ * 프로필 이미지 [헤더]
+ */
 export const ProfileImg = styled.img`
   width: 28px;
   height: 28px;
@@ -59,6 +66,9 @@ export const WorkspaceWrapper = styled.div`
   flex: 1;
 `;
 
+/**
+ * 워크스페이스 선택 화면
+ */
 export const Workspaces = styled.div`
   width: 65px;
   display: inline-flex;
@@ -173,6 +183,9 @@ export const Chats = styled.div`
   flex: 1;
 `;
 
+/**
+ * 워크스페이스 추가 버튼
+ */
 export const AddButton = styled.button`
   color: white;
   font-size: 24px;

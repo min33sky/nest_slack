@@ -1,6 +1,5 @@
-import Workspace from '@layouts/Workspace';
 import React from 'react';
 
 export default function Channel() {
-  return <Workspace>채널</Workspace>;
+  return <div>채널 페이지입니다.</div>;
 }
