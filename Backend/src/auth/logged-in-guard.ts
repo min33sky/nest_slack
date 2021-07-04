@@ -1,6 +1,9 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
+/**
+ * 로그인 했는지 체크한다.
+ */
 @Injectable()
 export class LoggedInGuard implements CanActivate {
   canActivate(
