@@ -1,4 +1,10 @@
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -6,24 +12,42 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { User } from 'src/common/decorators/user.decorators';
 import { Users } from 'src/entities/Users';
 import { WorkspacesService } from './workspaces.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
+import { LoggedInGuard } from 'src/auth/logged-in-guard';
 
-@ApiTags('WORKSPACE')
+@ApiTags('WORKSPACES')
+@ApiCookieAuth('connect.sid')
+@UseGuards(LoggedInGuard)
 @Controller('api/workspaces')
 export class WorkspacesController {
   constructor(private workspacesService: WorkspacesService) {}
 
   @ApiOperation({ summary: '내 워크스페이스 가져오기' })
+  @ApiOkResponse({
+    description: '요청 성공',
+  })
   @Get()
   async getMyWorkspaces(@User() user: Users) {
     return this.workspacesService.findByWorkspaces(user.id);
   }
 
   @ApiOperation({ summary: '워크스페이스 만들기' })
+  @ApiOkResponse({
+    description: '워크스페이스 생성 성공',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '이미 존재하는 워크스페이스 혹은 주소',
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 에러',
+  })
   @Post()
   async createWorkspaces(
     @User() user: Users,

@@ -19,6 +19,7 @@ import {
   ProfileModal,
   RightMenu,
   WorkspaceButton,
+  WorkspaceMenu,
   WorkspaceName,
   Workspaces,
   WorkspaceWrapper,
@@ -32,10 +33,11 @@ const Channel = loadable(() => import('@pages/Channel'));
  */
 export default function Workspace() {
   // TODO: 타입 좀 손 봐야함
-  const { data: userData, revalidate } = useSWR<IUser & boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
+  const { data: userData, revalidate, mutate } = useSWR<IUser & boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
 
   const [showUserMenu, setShowUserMenu] = useState(false); // 헤더의 사용자 메뉴
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false); // 워크스페이스 생성 모달
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);
@@ -48,9 +50,15 @@ export default function Workspace() {
   const onLogout = useCallback(() => {
     axios.post('/api/users/logout', {}, { withCredentials: true }).then(() => {
       // TODO: mutate로 즉시 반영하는게 나을듯
-      revalidate();
+      // revalidate();
+      mutate();
     });
-  }, [revalidate]);
+  }, [mutate]);
+
+  const toggleWorkspaceMenu = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowWorkspaceMenu((prev) => !prev);
+  }, []);
 
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
@@ -113,16 +121,40 @@ export default function Workspace() {
 
         {/* 채널 선택 화면 */}
         <Channels>
-          <WorkspaceName>Slack</WorkspaceName>
-          <MenuScroll>메뉴 스크롤</MenuScroll>
+          <WorkspaceName onClick={toggleWorkspaceMenu}>Slack</WorkspaceName>
+          <MenuScroll>
+            <Menu
+              show={showWorkspaceMenu}
+              onCloseModal={toggleWorkspaceMenu}
+              style={{ top: 95, left: 80 }}
+              closeButton
+            >
+              {/* 메뉴 내용 */}
+              <WorkspaceMenu>
+                <h2>Slack</h2>
+                <button type="button" onClick={() => {}}>
+                  워크스페이스에 사용자 초대
+                </button>
+                <button type="button" onClick={() => {}}>
+                  채널 만들기
+                </button>
+                <button type="button" onClick={onLogout}>
+                  로그아웃
+                </button>
+              </WorkspaceMenu>
+            </Menu>
+
+            {/* 채널 리스트 */}
+            {/* DM 리스트 */}
+          </MenuScroll>
         </Channels>
 
-        {/* 채팅 화면 */}
-        <Chats>
-          {/*
-          Nested Routing
-          : 이전 라우팅 주소도 포함되어야 한다. (예: /workspace)
+        {/* 채팅 화면
+
+        참고) Nested Routing
+        - 이전 라우팅 주소도 포함되어야 한다. (예: /workspace)
         */}
+        <Chats>
           <Switch>
             <Route path="/workspace/channel" component={Channel} />
           </Switch>

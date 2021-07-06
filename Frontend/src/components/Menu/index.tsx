@@ -10,6 +10,14 @@ interface IProps {
   closeButton?: boolean;
 }
 
+/**
+ * 메뉴 컴포넌트
+ * @param show
+ * @param onCloseModal
+ * @param style
+ * @param closeButton 종료 버튼의 존재 유무
+ * @returns
+ */
 function Menu({ children, onCloseModal, style, show, closeButton }: IProps) {
   const stopPropagation = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

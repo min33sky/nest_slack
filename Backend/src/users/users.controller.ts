@@ -29,7 +29,7 @@ import { LoginResponseDto } from './dto/login.response.dto';
 import { UserResponseDto } from './dto/user.response.dto';
 
 @UseInterceptors(UndefinedToNullInterceptor)
-@ApiTags('USER')
+@ApiTags('USERS')
 @Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
