@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+
+import { Backdrop, CloseModalButton } from './style';
 
 interface IProps {
   show: boolean;
@@ -7,11 +9,22 @@ interface IProps {
 }
 
 /**
- * ? 레이아웃으로 옮겨도 될듯
  * 모달 컴포넌트
- * @param param0
- * @returns
+ * @param onCloseModal
+ * @param show
+ * @returns Modal Component
  */
 export default function Modal({ children, onCloseModal, show }: IProps) {
-  return <div>{children}</div>;
+  const stopPropagation = useCallback((e: React.MouseEvent) => e.stopPropagation(), []);
+
+  if (!show) return null;
+
+  return (
+    <Backdrop onClick={onCloseModal}>
+      <div role="presentation" onClick={stopPropagation}>
+        <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>
+        {children}
+      </div>
+    </Backdrop>
+  );
 }

@@ -26,6 +26,7 @@ const config: webpack.Configuration = {
       '@layouts': path.resolve(__dirname, 'src/layouts'),
       '@pages': path.resolve(__dirname, 'src/pages'),
       '@utils': path.resolve(__dirname, 'src/utils'),
+      '@styles': path.resolve(__dirname, 'src/styles'),
       '@typings': path.resolve(__dirname, 'src/typings'),
     },
   },

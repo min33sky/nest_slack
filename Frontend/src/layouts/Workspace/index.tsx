@@ -7,6 +7,7 @@ import gravatar from 'gravatar';
 import Menu from '@components/Menu';
 import loadable from '@loadable/component';
 import { IUser } from '@typings/db';
+import WorkspaceModal from '@components/WorkspaceModal';
 import {
   AddButton,
   Channels,
@@ -51,6 +52,12 @@ export default function Workspace() {
     });
   }, [revalidate]);
 
+  const onCloseModal = useCallback(() => {
+    setShowCreateWorkspaceModal(false);
+  }, []);
+
+  // console.log('workspace: ', userData);
+
   if (!userData) {
     return <Redirect to="/login" />;
   }
@@ -94,9 +101,9 @@ export default function Workspace() {
       </Header>
 
       <WorkspaceWrapper>
-        {/* 워크스페이스  */}
+        {/* 워크스페이스 선택 화면 */}
         <Workspaces>
-          {userData.Workspaces.map((ws) => (
+          {userData?.Workspaces?.map((ws) => (
             <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
               <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
             </Link>
@@ -104,7 +111,7 @@ export default function Workspace() {
           <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
 
-        {/* 채널 */}
+        {/* 채널 선택 화면 */}
         <Channels>
           <WorkspaceName>Slack</WorkspaceName>
           <MenuScroll>메뉴 스크롤</MenuScroll>
@@ -123,6 +130,7 @@ export default function Workspace() {
       </WorkspaceWrapper>
 
       {/* 모달 컴포넌트들 */}
+      <WorkspaceModal show={showCreateWorkspaceModal} onCloseModal={onCloseModal} />
     </>
   );
 }
