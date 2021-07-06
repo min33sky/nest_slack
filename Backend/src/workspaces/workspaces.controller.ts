@@ -2,7 +2,6 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -56,12 +55,6 @@ export class WorkspacesController {
   ) {
     return this.workspacesService.getWorkspaceMember(url, id);
   }
-
-  // @Post(':url/members')
-  // inviteMembersToWorkspace() {}
-
-  // @Delete(':url/members/:id')
-  // kickMemberFromWorkspace() {}
 
   // @Get(':url/members/:id')
   // getMemberInfoInWorkspace() {}

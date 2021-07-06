@@ -1,5 +1,9 @@
 import { WorkspaceMembers } from './../entities/WorkspaceMembers';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Workspaces } from 'src/entities/Workspaces';
 import { Repository, Connection } from 'typeorm';
@@ -40,11 +44,16 @@ export class WorkspacesService {
     });
   }
 
+  /**
+   * 워크스페이스 생성하기
+   * @param name 워크스페이스 이름
+   * @param url 워크스페이스 주소
+   * @param myId 생성자 ID
+   */
   async createWorkspace(name: string, url: string, myId: number) {
+    //? 트랜잭션 적용
     const queryRunner = this.connection.createQueryRunner();
-
     await queryRunner.connect();
-
     await queryRunner.startTransaction();
 
     try {
@@ -55,14 +64,17 @@ export class WorkspacesService {
       workspace.url = url;
       workspace.OwnerId = myId;
       const returned = await queryRunner.manager.save(workspace);
+
       const workspaceMember = new WorkspaceMembers();
       workspaceMember.UserId = myId;
       workspaceMember.WorkspaceId = returned.id;
       await queryRunner.manager.save(workspaceMember);
+
       const channel = new Channels();
       channel.name = '일반';
       channel.WorkspaceId = returned.id;
       const channelReturned = await queryRunner.manager.save(channel);
+
       const channelMember = new ChannelMembers();
       channelMember.UserId = myId;
       channelMember.ChannelId = channelReturned.id;
@@ -71,9 +83,18 @@ export class WorkspacesService {
       // Commit
       await queryRunner.commitTransaction();
     } catch (err) {
+      // Rollback
       await queryRunner.rollbackTransaction();
-      // TODO: Exception을 throw해주면 될 듯
+
+      // Response to Client
+      const errorMessage: string = err.sqlMessage;
+      if (errorMessage.includes('workspaces.url')) {
+        throw new ForbiddenException('이미 존재하는 주소입니다.');
+      } else {
+        throw new ForbiddenException('이미 존재하는 워크스페이스입니다.');
+      }
     } finally {
+      // Disconnect
       await queryRunner.release();
     }
   }
