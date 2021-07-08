@@ -1,13 +1,15 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
-import { Link, Redirect, Route, Switch } from 'react-router-dom';
+import { Link, Redirect, Route, Switch, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import gravatar from 'gravatar';
 import Menu from '@components/Menu';
 import loadable from '@loadable/component';
-import { IUser } from '@typings/db';
+import { IChannel, IUser } from '@typings/db';
 import WorkspaceModal from '@components/WorkspaceModal';
+import ChannelModal from '@components/ChannelModal';
+import ChannelList from '@components/ChannelList';
 import {
   AddButton,
   Channels,
@@ -32,12 +34,25 @@ const Channel = loadable(() => import('@pages/Channel'));
  * @returns Layout Component
  */
 export default function Workspace() {
+  const { workspace } = useParams<{ workspace: string }>();
+
   // TODO: 타입 좀 손 봐야함
-  const { data: userData, revalidate, mutate } = useSWR<IUser & boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
+  const { data: userData, revalidate } = useSWR<IUser & boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
+  const { revalidate: revalidateChannel } = useSWR(
+    userData ? `/api/workspaces/${workspace}/channels` : null,
+    fetcher
+  );
+
+  // 채널 정보 가져오기
+  const { data: channelData } = useSWR<IChannel[]>(
+    userData ? `/api/workspaces/${workspace}/channels` : null,
+    fetcher
+  );
 
   const [showUserMenu, setShowUserMenu] = useState(false); // 헤더의 사용자 메뉴
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false); // 워크스페이스 생성 모달
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
+  const [showCreateChannelModal, setShowCreateChannelModal] = useState(false); // 채널 생성 모달
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);
@@ -50,18 +65,23 @@ export default function Workspace() {
   const onLogout = useCallback(() => {
     axios.post('/api/users/logout', {}, { withCredentials: true }).then(() => {
       // TODO: mutate로 즉시 반영하는게 나을듯
-      // revalidate();
-      mutate();
+      revalidate();
+      // mutate();
     });
-  }, [mutate]);
+  }, [revalidate]);
 
   const toggleWorkspaceMenu = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setShowWorkspaceMenu((prev) => !prev);
   }, []);
 
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal(true);
+  }, []);
+
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
+    setShowCreateChannelModal(false);
   }, []);
 
   // console.log('workspace: ', userData);
@@ -135,7 +155,7 @@ export default function Workspace() {
                 <button type="button" onClick={() => {}}>
                   워크스페이스에 사용자 초대
                 </button>
-                <button type="button" onClick={() => {}}>
+                <button type="button" onClick={onClickAddChannel}>
                   채널 만들기
                 </button>
                 <button type="button" onClick={onLogout}>
@@ -145,6 +165,7 @@ export default function Workspace() {
             </Menu>
 
             {/* 채널 리스트 */}
+            <ChannelList />
             {/* DM 리스트 */}
           </MenuScroll>
         </Channels>
@@ -156,13 +177,14 @@ export default function Workspace() {
         */}
         <Chats>
           <Switch>
-            <Route path="/workspace/channel" component={Channel} />
+            <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
           </Switch>
         </Chats>
       </WorkspaceWrapper>
 
       {/* 모달 컴포넌트들 */}
       <WorkspaceModal show={showCreateWorkspaceModal} onCloseModal={onCloseModal} />
+      <ChannelModal show={showCreateChannelModal} onCloseModal={onCloseModal} />
     </>
   );
 }

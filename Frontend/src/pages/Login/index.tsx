@@ -49,7 +49,7 @@ export default function Login() {
 
   console.log('userdata: ', typeof userData, userData);
 
-  if (userData) return <Redirect to="/workspace/channel" />;
+  if (userData) return <Redirect to="/workspace/sleact/channel/일반" />;
 
   return (
     <Container>
