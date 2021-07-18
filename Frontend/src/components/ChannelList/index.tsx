@@ -14,5 +14,7 @@ export default function ChannelList() {
     fetcher
   );
 
-  return <>{channelData && channelData.map((channel) => <div>{channel.name}</div>)}</>;
+  return (
+    <>{channelData && channelData.map((channel) => <div key={channel.id}>{channel.name}</div>)}</>
+  );
 }

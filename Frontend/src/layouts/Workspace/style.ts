@@ -92,6 +92,7 @@ export const Channels = styled.nav`
   background: #3f0e40;
   color: rgb(188, 171, 188);
   vertical-align: top;
+
   & a {
     padding-left: 36px;
     color: inherit;
@@ -100,10 +101,13 @@ export const Channels = styled.nav`
     line-height: 28px;
     display: flex;
     align-items: center;
+
+    /* NavLink에서 사용할 클래스명 */
     &.selected {
       color: white;
     }
   }
+
   /* 채팅 리스트 글자 굵게 표시 */
   & .bold {
     color: white;

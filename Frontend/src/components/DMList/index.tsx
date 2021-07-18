@@ -1,7 +1,24 @@
+import { IUser, IUserWithOnline } from '@typings/db';
+import fetcher from '@utils/fetcher';
 import React, { useCallback, useState } from 'react';
+import { useParams } from 'react-router';
+import { NavLink } from 'react-router-dom';
+import useSWR from 'swr';
 import { CollapseButton } from './style';
 
+/**
+ * Direct Message List
+ * @returns
+ */
 export default function DMList() {
+  const { workspace } = useParams<{ workspace: string }>();
+
+  const { data: userData } = useSWR<IUser>(`/api/users`, fetcher); // 내 정보
+  const { data: memberData } = useSWR<IUserWithOnline[]>(
+    userData ? `/api/workspaces/${workspace}/members` : null,
+    fetcher
+  ); // 현재 워크스페이스 맴버 정보
+
   const [channelCollapse, setChannelCollapse] = useState(false);
 
   const toggleChannelCollapse = useCallback(() => {
@@ -20,6 +37,23 @@ export default function DMList() {
         </CollapseButton>
         <span>Direct Messages</span>
       </h2>
+
+      <div>
+        {!channelCollapse &&
+          memberData?.map((member) => {
+            return (
+              <NavLink
+                key={member.id}
+                activeClassName="selected"
+                to={`/workspace/${workspace}/dm/${member.id}`}
+                onClick={() => {}}
+              >
+                <span>{member.nickname}</span>
+                {member.id === userData?.id && <span>[나]</span>}
+              </NavLink>
+            );
+          })}
+      </div>
     </>
   );
 }
