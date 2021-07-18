@@ -46,7 +46,9 @@
     "consistent-return": "off",
     "no-plusplus": "off",
     // label 사용할 때 생기는 경고
-    "jsx-a11y/label-has-associated-control": "off"
+    "jsx-a11y/label-has-associated-control": "off",
+    // export default
+    "import/prefer-default-export": "off"
   },
   "settings": {
     "import/parsers": {
