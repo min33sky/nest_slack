@@ -2,6 +2,10 @@ import styled from '@emotion/styled';
 
 /**
  * 라벨이 있는 인풋
+ * @example <caption>input에 label이 필요할 경우 아래와 같이 사용하면 된다.</caption>
+  <label htmlFor="input-id" >
+  <Input type="email" id="input-id" value={0} onChange={()=>{}}>
+ *
  */
 export const InputWithLabel = styled.div`
   height: 100px;

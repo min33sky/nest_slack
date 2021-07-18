@@ -10,6 +10,7 @@ import { IChannel, IUser } from '@typings/db';
 import WorkspaceModal from '@components/WorkspaceModal';
 import ChannelModal from '@components/ChannelModal';
 import ChannelList from '@components/ChannelList';
+import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import {
   AddButton,
   Channels,
@@ -53,6 +54,7 @@ export default function Workspace() {
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false); // 워크스페이스 생성 모달
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false); // 채널 생성 모달
+  const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);
@@ -79,9 +81,14 @@ export default function Workspace() {
     setShowCreateChannelModal(true);
   }, []);
 
+  const onClickInviteWorkspace = useCallback(() => {
+    setShowInviteWorkspaceModal(true);
+  }, []);
+
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
+    setShowInviteWorkspaceModal(false);
   }, []);
 
   // console.log('workspace: ', userData);
@@ -152,7 +159,7 @@ export default function Workspace() {
               {/* 메뉴 내용 */}
               <WorkspaceMenu>
                 <h2>Slack</h2>
-                <button type="button" onClick={() => {}}>
+                <button type="button" onClick={onClickInviteWorkspace}>
                   워크스페이스에 사용자 초대
                 </button>
                 <button type="button" onClick={onClickAddChannel}>
@@ -185,6 +192,7 @@ export default function Workspace() {
       {/* 모달 컴포넌트들 */}
       <WorkspaceModal show={showCreateWorkspaceModal} onCloseModal={onCloseModal} />
       <ChannelModal show={showCreateChannelModal} onCloseModal={onCloseModal} />
+      <InviteWorkspaceModal show={showInviteWorkspaceModal} onCloseModal={onCloseModal} />
     </>
   );
 }
