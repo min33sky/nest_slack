@@ -28,7 +28,9 @@ export default function InviteChannelModal({ show, onCloseModal }: IProps) {
   const { revalidate: revalidateMembers } = useSWR<IUser[]>(
     userData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
     fetcher
-  );
+  ); // !!!! undefined 나옴 채널에서
+
+  console.log('workspace, channel: ', workspace, channel);
 
   const onInviteMember = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {

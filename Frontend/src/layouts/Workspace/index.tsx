@@ -13,6 +13,7 @@ import ChannelList from '@components/ChannelList';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import InviteChannelModal from '@components/InviteChannelModal';
 import DMList from '@components/DMList';
+import DirectMessage from '@pages/DirectMessage';
 import {
   AddButton,
   Channels,
@@ -57,7 +58,6 @@ export default function Workspace() {
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false); // 채널 생성 모달
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
-  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);
@@ -88,15 +88,10 @@ export default function Workspace() {
     setShowInviteWorkspaceModal(true);
   }, []);
 
-  const onClickInviteChannel = useCallback(() => {
-    setShowInviteChannelModal(true);
-  }, []);
-
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
     setShowInviteWorkspaceModal(false);
-    setShowInviteChannelModal(false);
   }, []);
 
   // console.log('workspace: ', userData);
@@ -170,9 +165,6 @@ export default function Workspace() {
                 <button type="button" onClick={onClickInviteWorkspace}>
                   워크스페이스에 사용자 초대
                 </button>
-                <button type="button" onClick={onClickInviteChannel}>
-                  채널에 사용자 초대
-                </button>
                 <button type="button" onClick={onClickAddChannel}>
                   채널 만들기
                 </button>
@@ -198,6 +190,7 @@ export default function Workspace() {
         <Chats>
           <Switch>
             <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
+            <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
           </Switch>
         </Chats>
       </WorkspaceWrapper>
@@ -206,7 +199,6 @@ export default function Workspace() {
       <WorkspaceModal show={showCreateWorkspaceModal} onCloseModal={onCloseModal} />
       <ChannelModal show={showCreateChannelModal} onCloseModal={onCloseModal} />
       <InviteWorkspaceModal show={showInviteWorkspaceModal} onCloseModal={onCloseModal} />
-      <InviteChannelModal show={showInviteChannelModal} onCloseModal={onCloseModal} />
     </>
   );
 }
