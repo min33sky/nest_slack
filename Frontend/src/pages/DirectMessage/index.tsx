@@ -1,13 +1,18 @@
 import { Container, Header } from '@pages/DirectMessage/style';
 import { IDM, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useParams } from 'react-router';
 import useSWR from 'swr';
 import gravatar from 'gravatar';
 import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
+import useInput from '@hooks/useInput';
 
+/**
+ * DM 페이지
+ * @returns
+ */
 export default function DirectMessage() {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
   const { data: myData } = useSWR<IUser>('/api/users', fetcher); // 내 정보
@@ -15,6 +20,13 @@ export default function DirectMessage() {
     `/api/workspaces/${workspace}/members/${id}`,
     fetcher
   ); // 상대방 정보
+
+  const { value: chat, handler: onChangeChat, setValue: setChange } = useInput('');
+
+  const onSubmitForm = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('채팅 전송~~~~');
+  }, []);
 
   if (!myData || !theOtherPersonData) {
     return <div>로딩 중............................</div>;
@@ -31,7 +43,8 @@ export default function DirectMessage() {
       </Header>
 
       <ChatList />
-      <ChatBox />
+
+      <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
     </Container>
   );
 }
