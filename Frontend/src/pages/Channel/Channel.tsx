@@ -2,9 +2,11 @@ import ChatBox from '@components/ChatBox/ChatBox';
 import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
 import { Container, Header } from '@pages/Channel/Channel.style';
-import { IChannel, IUser } from '@typings/db';
+import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import React from 'react';
+import axios from 'axios';
+import React, { useCallback } from 'react';
+
 import { useParams } from 'react-router';
 import useSWR from 'swr';
 
@@ -19,9 +21,43 @@ export default function Channel() {
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(`/api/workspaces/${workspace}/channels`);
 
-  const { value: chat, handler: onChangeChat } = useInput('');
+  const {
+    data: chatData,
+    mutate: mutateChat,
+    revalidate,
+  } = useSWR<IChat[]>(
+    `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=1`,
+    fetcher
+  );
+
+  const { value: chat, handler: onChangeChat, setValue: setValueChat } = useInput('');
 
   console.log('채널 데이터: ', channelData);
+  console.log('채팅 데이터: ', chatData);
+
+  const onSubmitForm = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      axios
+        .post(
+          `/api/workspaces/${workspace}/channels/${channel}/chats`,
+          {
+            content: chat,
+          },
+          {
+            withCredentials: true,
+          }
+        )
+        .then(() => {
+          // TODO: 필요 없을 수도
+          setValueChat('');
+          console.log('[Channel] revalidate()');
+          revalidate();
+        })
+        .catch(console.error);
+    },
+    [channel, chat, revalidate, workspace, setValueChat]
+  );
 
   return (
     <Container>
@@ -52,7 +88,7 @@ export default function Channel() {
       // setSize={setSize}
       />
 
-      <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={() => {}} />
+      <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
 
       {/* 채널 초대 모달이 들어올 자리 */}
     </Container>
