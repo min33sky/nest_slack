@@ -22,7 +22,11 @@ import useSWR from 'swr';
  * @returns
  */
 export default function Login() {
-  const { data: userData, mutate } = useSWR<UserInfo | boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
+  const {
+    data: userData,
+    mutate,
+    isValidating,
+  } = useSWR<UserInfo | boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
   const { value: email, handler: onChangeEmail } = useInput('');
   const { value: password, handler: onChangePassword } = useInput('');
   const [loginError, setLoginError] = useState(false);
@@ -47,9 +51,11 @@ export default function Login() {
     [email, password, mutate]
   );
 
-  console.log('userdata: ', typeof userData, userData);
-
   if (userData) return <Redirect to="/workspace/sleact/channel/일반" />;
+
+  if (isValidating) {
+    return <p>로딩 중......</p>;
+  }
 
   return (
     <Container>

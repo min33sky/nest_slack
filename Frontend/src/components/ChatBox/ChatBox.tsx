@@ -1,17 +1,26 @@
-import { ChatArea, MentionsTextarea, Toolbox, SendButton } from '@components/ChatBox/style';
+import { ChatArea, MentionsTextarea, Toolbox, SendButton } from '@components/ChatBox/ChatBox.style';
 import { Form } from '@pages/Signup/style';
 import { IUser } from '@typings/db';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Mention } from 'react-mentions';
 import autosize from 'autosize';
 
-interface IProps {
+interface IChatBox {
   chat: string;
   onChangeChat: (e: any) => void;
   onSubmitForm: (e: any) => void;
 }
 
-export default function ChatBox({ chat, onChangeChat, onSubmitForm }: IProps) {
+/**
+ * 채팅 입력 컴포넌트
+ * ? Enter: 메세지 전송
+ * ? Shift + Enter: 아래 칸으로 이동
+ * @param chat 채팅 메세지
+ * @param onChangeChat 인풋 핸들러
+ * @param onSubmitForm 메세지 전송
+ * @returns
+ */
+export default function ChatBox({ chat, onChangeChat, onSubmitForm }: IChatBox) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {

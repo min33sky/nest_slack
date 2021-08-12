@@ -1,11 +1,11 @@
-import { Container, Header } from '@pages/DirectMessage/style';
+import { Container, Header } from '@pages/DirectMessage/DirectMessage.style';
 import { IDM, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import React, { useCallback } from 'react';
 import { useParams } from 'react-router';
 import useSWR from 'swr';
 import gravatar from 'gravatar';
-import ChatBox from '@components/ChatBox';
+import ChatBox from '@components/ChatBox/ChatBox';
 import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
 
@@ -21,15 +21,19 @@ export default function DirectMessage() {
     fetcher
   ); // 상대방 정보
 
-  const { value: chat, handler: onChangeChat, setValue: setChange } = useInput('');
+  const { value: chat, handler: onChangeChat, setValue } = useInput('');
 
-  const onSubmitForm = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('채팅 전송~~~~');
-  }, []);
+  const onSubmitForm = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      console.log('채팅 전송~~~~[구현중]');
+      setValue('');
+    },
+    [setValue]
+  );
 
   if (!myData || !theOtherPersonData) {
-    return <div>로딩 중............................</div>;
+    return <Container>로딩 중............................</Container>;
   }
 
   return (

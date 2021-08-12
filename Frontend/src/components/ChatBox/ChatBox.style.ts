@@ -3,6 +3,8 @@ import { MentionsInput } from 'react-mentions';
 
 export const ChatArea = styled.div`
   display: flex;
+  /************************** 임시 색상 처리 */
+  background-color: cadetblue;
   width: 100%;
   padding: 20px;
   padding-top: 0;

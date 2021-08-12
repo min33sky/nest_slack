@@ -13,7 +13,7 @@ import ChannelList from '@components/ChannelList';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import InviteChannelModal from '@components/InviteChannelModal';
 import DMList from '@components/DMList';
-import DirectMessage from '@pages/DirectMessage';
+import DirectMessage from '@pages/DirectMessage/DirectMessage';
 import {
   AddButton,
   Channels,
@@ -31,7 +31,7 @@ import {
   WorkspaceWrapper,
 } from './style';
 
-const Channel = loadable(() => import('@pages/Channel'));
+const Channel = loadable(() => import('@pages/Channel/Channel'));
 
 /**
  * 워크스페이스 레이아웃 [로그인 후 볼 수 있는 레이아웃]

@@ -69,7 +69,7 @@ async function bootstrap() {
     module.hot.dispose(() => app.close());
   }
 
-  console.log(`listening on port --> ${port}`);
+  console.log(`listening on port ---> ${port}`);
 }
 
 bootstrap();
