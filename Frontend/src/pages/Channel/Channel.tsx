@@ -1,13 +1,13 @@
 import ChatBox from '@components/ChatBox/ChatBox';
-import ChatList from '@components/ChatList';
+import ChatList from '@components/ChatList/ChatList';
 import useInput from '@hooks/useInput';
 import { Container, Header } from '@pages/Channel/Channel.style';
 import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { useParams } from 'react-router';
 import useSWR from 'swr';
 
 const PAGE_SIZE = 20;
@@ -81,11 +81,12 @@ export default function Channel() {
       </Header>
 
       <ChatList
-      // scrollbarRef={scrollbarRef}
-      // isReachingEnd={isReachingEnd}
-      // isEmpty={isEmpty}
-      // chatSections={chatSections}
-      // setSize={setSize}
+        // scrollbarRef={scrollbarRef}
+        // isReachingEnd={isReachingEnd}
+        // isEmpty={isEmpty}
+        // chatSections={chatSections}
+        // setSize={setSize}
+        chatData={chatData}
       />
 
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />

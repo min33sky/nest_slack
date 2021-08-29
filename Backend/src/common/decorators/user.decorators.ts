@@ -6,7 +6,7 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 export const User = createParamDecorator(
   (data: string, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    console.log('[User Decorator] request.user: ', request.user);
+    // console.log('[User Decorator] request.user: ', request.user);
     const user = request.user;
 
     //? 받은 인자값이 있다면 객체의 키로 사용하여 리턴

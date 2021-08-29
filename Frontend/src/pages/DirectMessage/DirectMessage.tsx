@@ -2,12 +2,16 @@ import { Container, Header } from '@pages/DirectMessage/DirectMessage.style';
 import { IDM, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import React, { useCallback } from 'react';
-import { useParams } from 'react-router';
 import useSWR from 'swr';
 import gravatar from 'gravatar';
 import ChatBox from '@components/ChatBox/ChatBox';
-import ChatList from '@components/ChatList';
+import ChatList from '@components/ChatList/ChatList';
 import useInput from '@hooks/useInput';
+import useSocket from '@hooks/useSocket';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+
+const PAGE_SIZE = 20;
 
 /**
  * DM 페이지
@@ -15,24 +19,46 @@ import useInput from '@hooks/useInput';
  */
 export default function DirectMessage() {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
+  const [socket] = useSocket(workspace);
   const { data: myData } = useSWR<IUser>('/api/users', fetcher); // 내 정보
-  const { data: theOtherPersonData } = useSWR<IUser>(
-    `/api/workspaces/${workspace}/members/${id}`,
+  const { data: userData } = useSWR<IUser>(`/api/workspaces/${workspace}/members/${id}`, fetcher); // 상대방 정보
+
+  const {
+    data: chatData,
+    mutate: mutateChat,
+    revalidate,
+  } = useSWR<IDM[]>(
+    `/api/workspaces/${workspace}/dms/${id}/chats?perPage=${PAGE_SIZE}&page=1`,
     fetcher
-  ); // 상대방 정보
+  );
+
+  console.log('!!!!!!!! chat data: ', chatData);
 
   const { value: chat, handler: onChangeChat, setValue } = useInput('');
 
   const onSubmitForm = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      console.log('채팅 전송~~~~[구현중]');
-      setValue('');
+      axios
+        .post(
+          `/api/workspaces/${workspace}/dms/${id}/chats`,
+          {
+            content: chat,
+          },
+          {
+            withCredentials: true,
+          }
+        )
+        .then(() => {
+          console.log('[DMLIST] revalidate()');
+          revalidate();
+        })
+        .catch(console.error);
     },
-    [setValue]
+    [chat, id, revalidate, workspace]
   );
 
-  if (!myData || !theOtherPersonData) {
+  if (!myData || !userData) {
     return <Container>로딩 중............................</Container>;
   }
 
@@ -40,13 +66,13 @@ export default function DirectMessage() {
     <Container>
       <Header>
         <img
-          src={gravatar.url(theOtherPersonData.email, { s: '24px', d: 'retro' })}
-          alt={theOtherPersonData.nickname}
+          src={gravatar.url(userData.email, { s: '24px', d: 'retro' })}
+          alt={userData.nickname}
         />
-        <span>{theOtherPersonData.nickname}</span>
+        <span>{userData.nickname}</span>
       </Header>
 
-      <ChatList />
+      <ChatList chatData={chatData} />
 
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
     </Container>

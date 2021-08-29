@@ -8,14 +8,14 @@ import useSWR from 'swr';
 import { CollapseButton } from './style';
 
 /**
- * Direct Message List
+ * 다이렉트 메세지를 보낼수 있는 명단 리스트
  * @returns
  */
 export default function DMList() {
   const { workspace } = useParams<{ workspace: string }>();
-  const [socket, disconnect] = useSocket();
+  const [socket] = useSocket(workspace);
 
-  const [onlineList, setOnlineList] = useState<number[]>([]);
+  const [onlineList, setOnlineList] = useState<number[]>([]); //* 현 workspace의 접속자 명단
 
   const { data: userData } = useSWR<IUser>(`/api/users`, fetcher); // 내 정보
   const { data: memberData } = useSWR<IUserWithOnline[]>(
@@ -54,7 +54,7 @@ export default function DMList() {
       <div>
         {!channelCollapse &&
           memberData?.map((member) => {
-            const isOnline = false; // !!!!! 임시
+            const isOnline = onlineList.includes(member.id);
             return (
               <NavLink
                 key={member.id}

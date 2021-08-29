@@ -40,7 +40,7 @@ const Channel = loadable(() => import('@pages/Channel/Channel'));
  */
 export default function Workspace() {
   const { workspace } = useParams<{ workspace: string }>();
-  const [socket, disconnect] = useSocket();
+  const [socket, disconnect] = useSocket(workspace);
 
   // TODO: 타입 좀 손 봐야함
   const { data: userData, revalidate } = useSWR<IUser & boolean>('/api/users', fetcher, {
@@ -65,7 +65,11 @@ export default function Workspace() {
         id: userData.id,
         channels: channelData.map((channel) => channel.id),
       });
+      console.log('socket 연결: ', socket);
     }
+    console.log('시발 -채털데이터', channelData);
+    console.log('시발 -유저데이터', userData);
+    console.log('시발 -소켓', socket);
   }, [channelData, userData, socket]);
 
   useEffect(() => {

@@ -10,6 +10,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io'; //? 원본 socket.io까지 설치를 해줘야 타입체크가 작동한다.
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   namespace: /\/ws-.+/,
@@ -17,6 +18,8 @@ import { Server, Socket } from 'socket.io'; //? 원본 socket.io까지 설치를
 export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  private logger = new Logger(EventsGateway.name);
+
   //? express에서 app.set('io')을 라우터에서 가져올 때 쓰는 방식
   @WebSocketServer() public server: Server;
 
@@ -46,7 +49,7 @@ export class EventsGateway
   }
 
   handleConnection(@ConnectedSocket() socket: Socket) {
-    console.log('connected', socket.nsp.name);
+    this.logger.debug(`[connected]: ${socket.nsp.name}`);
     if (!onlineMap[socket.nsp.name]) {
       onlineMap[socket.nsp.name] = {};
     }
@@ -54,7 +57,7 @@ export class EventsGateway
     socket.emit('hello', socket.nsp.name);
   }
   handleDisconnect(@ConnectedSocket() socket: Socket) {
-    console.log('disconnected', socket.nsp.name);
+    this.logger.debug(`[disconnected]: ${socket.nsp.name}`);
     const newNamespace = socket.nsp;
     delete onlineMap[socket.nsp.name][socket.id];
     newNamespace.emit('onlineList', Object.values(onlineMap[socket.nsp.name]));

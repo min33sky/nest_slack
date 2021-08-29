@@ -49,7 +49,8 @@
     // export default
     "import/prefer-default-export": "off",
     // ? 줄바꿈 경고창
-    "linebreak-style": "off"
+    "linebreak-style": "off",
+    "react/require-default-props": "off"
   },
   "settings": {
     "import/parsers": {

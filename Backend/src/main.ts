@@ -5,13 +5,14 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import session from 'express-session';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import path from 'path';
 
 declare const module: any;
 
 async function bootstrap() {
+  const logger = new Logger('Main');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT || 3000;
 
@@ -69,7 +70,7 @@ async function bootstrap() {
     module.hot.dispose(() => app.close());
   }
 
-  console.log(`listening on port ---> ${port}`);
+  logger.log(`Listening on Port: ${port}`);
 }
 
 bootstrap();
