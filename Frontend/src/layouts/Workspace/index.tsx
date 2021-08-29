@@ -1,6 +1,6 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Redirect, Route, Switch, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import gravatar from 'gravatar';
@@ -14,6 +14,7 @@ import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import InviteChannelModal from '@components/InviteChannelModal';
 import DMList from '@components/DMList';
 import DirectMessage from '@pages/DirectMessage/DirectMessage';
+import useSocket from '@hooks/useSocket';
 import {
   AddButton,
   Channels,
@@ -39,13 +40,12 @@ const Channel = loadable(() => import('@pages/Channel/Channel'));
  */
 export default function Workspace() {
   const { workspace } = useParams<{ workspace: string }>();
+  const [socket, disconnect] = useSocket();
 
   // TODO: 타입 좀 손 봐야함
-  const { data: userData, revalidate } = useSWR<IUser & boolean>('/api/users', fetcher); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
-  const { revalidate: revalidateChannel } = useSWR(
-    userData ? `/api/workspaces/${workspace}/channels` : null,
-    fetcher
-  );
+  const { data: userData, revalidate } = useSWR<IUser & boolean>('/api/users', fetcher, {
+    dedupingInterval: 2000,
+  }); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
 
   // 채널 정보 가져오기
   const { data: channelData } = useSWR<IChannel[]>(
@@ -58,6 +58,19 @@ export default function Workspace() {
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false); // 채널 생성 모달
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
+
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      socket.emit('login', {
+        id: userData.id,
+        channels: channelData.map((channel) => channel.id),
+      });
+    }
+  }, [channelData, userData, socket]);
+
+  useEffect(() => {
+    return () => disconnect();
+  }, [workspace, disconnect]);
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);

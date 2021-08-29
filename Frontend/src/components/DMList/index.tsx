@@ -1,6 +1,7 @@
+import useSocket from '@hooks/useSocket';
 import { IUser, IUserWithOnline } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import useSWR from 'swr';
@@ -12,6 +13,9 @@ import { CollapseButton } from './style';
  */
 export default function DMList() {
   const { workspace } = useParams<{ workspace: string }>();
+  const [socket, disconnect] = useSocket();
+
+  const [onlineList, setOnlineList] = useState<number[]>([]);
 
   const { data: userData } = useSWR<IUser>(`/api/users`, fetcher); // 내 정보
   const { data: memberData } = useSWR<IUserWithOnline[]>(
@@ -24,6 +28,15 @@ export default function DMList() {
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    socket?.on('onlineList', (data: number[]) => {
+      setOnlineList(data);
+    });
+    return () => {
+      socket?.off('onlineList');
+    };
+  }, [socket]);
 
   return (
     <>
