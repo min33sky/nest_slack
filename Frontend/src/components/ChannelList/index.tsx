@@ -11,12 +11,14 @@ import useSWR from 'swr';
  */
 export default function ChannelList() {
   const { workspace } = useParams<{ workspace: string }>();
-  const [channelCollapse, setChannelCollapse] = useState(false);
+  const [channelCollapse, setChannelCollapse] = useState(false); // 채널 리스트 펼치기 버튼
+
+  //* 유저 정보
   const { data: userData } = useSWR<IUser>('/api/users', fetcher, {
     dedupingInterval: 2000,
   }); // ? SWR은 KEY값이 동일하면 데이터가 공유된다.
 
-  // 채널 정보 가져오기
+  //* 채널 정보
   const { data: channelData } = useSWR<IChannel[]>(
     userData ? `/api/workspaces/${workspace}/channels` : null,
     fetcher

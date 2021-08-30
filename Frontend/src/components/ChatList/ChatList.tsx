@@ -11,7 +11,7 @@ interface IChatList {
 export default function ChatList({ chatData }: IChatList) {
   const scrollbarRef = useRef(null);
 
-  const onScroll = useCallback(() => {}, []);
+  const onScroll = useCallback(() => {}, []); // TODO: 이전 게시물을 로드하는 함수
 
   if (!chatData) return null;
 

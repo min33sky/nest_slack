@@ -32,7 +32,7 @@ export default function DirectMessage() {
     fetcher
   );
 
-  console.log('!!!!!!!! chat data: ', chatData);
+  console.log('DM chat data: ', chatData);
 
   const { value: chat, handler: onChangeChat, setValue } = useInput('');
 

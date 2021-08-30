@@ -13,7 +13,7 @@ import useSWR from 'swr';
 const PAGE_SIZE = 20;
 
 /**
- * 채널 채팅 컴포넌트
+ * 채널 채팅 패아자
  * @returns
  */
 export default function Channel() {

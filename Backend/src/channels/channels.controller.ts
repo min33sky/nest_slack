@@ -32,7 +32,7 @@ try {
 export class ChannelsController {
   constructor(private channelsService: ChannelsService) {}
 
-  @ApiOperation({ summary: '워크스페이스 채널 모두 가져오기' })
+  @ApiOperation({ summary: '해당 워크스페이스의 채널 모두 가져오기' })
   @Get()
   async getWorkspaceChannels(@Param('url') url: string, @User() user: Users) {
     return this.channelsService.getWorkspaceChannels(url, user.id);

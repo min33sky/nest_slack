@@ -26,7 +26,7 @@ export class EventsGateway
   // 기존 socket.io의 on메서드와 동일하게 작동한다.
   @SubscribeMessage('test')
   handleTest(@MessageBody() data: string) {
-    console.log('test', data);
+    this.logger.debug('Socket.IO TEST: ', data);
   }
 
   @SubscribeMessage('login')
@@ -35,8 +35,9 @@ export class EventsGateway
     @ConnectedSocket() socket: Socket,
   ) {
     const newNamespace = socket.nsp;
-    console.log('login', newNamespace);
+    this.logger.debug(`LOGIN to namespace: ${newNamespace}`);
     onlineMap[socket.nsp.name][socket.id] = data.id;
+    //* 접속한 소켓들에 onlineList 이벤트 발생
     newNamespace.emit('onlineList', Object.values(onlineMap[socket.nsp.name]));
     data.channels.forEach((channel) => {
       console.log('join', socket.nsp.name, channel);
