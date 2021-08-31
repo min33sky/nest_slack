@@ -29,8 +29,6 @@ const useSocket = (workspace: string): [SocketIOClient.Socket | undefined, () =>
     console.log('create socket', workspace, sockets[workspace]);
   }
 
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-
   return [sockets[workspace], disconnect];
 };
 

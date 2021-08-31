@@ -50,7 +50,9 @@
     "import/prefer-default-export": "off",
     // ? 줄바꿈 경고창
     "linebreak-style": "off",
-    "react/require-default-props": "off"
+    "react/require-default-props": "off",
+    "react/destructuring-assignment": "off",
+    "react/prop-types": "off"
   },
   "settings": {
     "import/parsers": {

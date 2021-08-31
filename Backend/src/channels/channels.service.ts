@@ -1,5 +1,5 @@
 import { ChatImage } from './interface/chatImage.interface';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChannelChats } from 'src/entities/ChannelChats';
 import { ChannelMembers } from 'src/entities/ChannelMembers';
@@ -12,6 +12,8 @@ import { ChatData } from './interface/chat.interface';
 
 @Injectable()
 export class ChannelsService {
+  private readonly logger = new Logger(ChannelsService.name);
+
   constructor(
     @InjectRepository(Channels)
     private channelsRepository: Repository<Channels>,
@@ -185,6 +187,7 @@ export class ChannelsService {
       relations: ['User', 'Channel'],
     });
 
+    this.logger.debug(`웹소켓 채팅방 전송: /ws-${url}-${channel.id}}`);
     // socket.io로 워크스페이스 + 채널 사용자에게 전송
     this.eventsGateway.server
       .to(`/ws-${url}-${channel.id}`)

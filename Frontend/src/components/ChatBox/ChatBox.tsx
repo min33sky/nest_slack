@@ -1,9 +1,19 @@
-import { ChatArea, MentionsTextarea, Toolbox, SendButton } from '@components/ChatBox/ChatBox.style';
+import {
+  ChatArea,
+  MentionsTextarea,
+  Toolbox,
+  SendButton,
+  EachMention,
+} from '@components/ChatBox/ChatBox.style';
 import { Form } from '@pages/Signup/style';
-import { IUser } from '@typings/db';
+import { IUser, IUserWithOnline } from '@typings/db';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Mention } from 'react-mentions';
+import { Mention, SuggestionDataItem } from 'react-mentions';
 import autosize from 'autosize';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
+import { useParams } from 'react-router-dom';
+import gravatar from 'gravatar';
 
 interface IChatBox {
   chat: string;
@@ -21,6 +31,13 @@ interface IChatBox {
  * @returns
  */
 export default function ChatBox({ chat, onChangeChat, onSubmitForm }: IChatBox) {
+  const { workspace } = useParams<{ workspace: string }>();
+  const { data: userData } = useSWR<IUser>(`/api/users`, fetcher); // 내 정보
+  const { data: memberData } = useSWR<IUserWithOnline[]>(
+    userData ? `/api/workspaces/${workspace}/members` : null,
+    fetcher
+  ); // 현재 워크스페이스 맴버 정보
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -42,6 +59,28 @@ export default function ChatBox({ chat, onChangeChat, onSubmitForm }: IChatBox) 
     [onSubmitForm]
   );
 
+  const renderSuggesion = useCallback(
+    (
+      suggestion: SuggestionDataItem,
+      search: string,
+      highlightedDisplay: React.ReactNode,
+      index: number,
+      focused: boolean
+    ): React.ReactNode => {
+      if (!memberData) return;
+      return (
+        <EachMention focus={focused}>
+          <img
+            src={gravatar.url(memberData[index].email, { s: '20px', d: 'retro' })}
+            alt={memberData[index].nickname}
+          />
+          <span>{highlightedDisplay}</span>
+        </EachMention>
+      );
+    },
+    [memberData]
+  );
+
   return (
     <ChatArea>
       <Form onSubmit={onSubmitForm}>
@@ -50,8 +89,17 @@ export default function ChatBox({ chat, onChangeChat, onSubmitForm }: IChatBox) 
           value={chat}
           onChange={onChangeChat}
           onKeyPress={onKeyDownChat}
-          ref={textareaRef}
-        />
+          placeholder="메세지를 입력하세요."
+          inputRef={textareaRef}
+          allowSuggestionsAboveCursor
+        >
+          <Mention
+            appendSpaceOnAdd
+            trigger="@"
+            data={memberData?.map((member) => ({ id: member.id, display: member.nickname })) || []}
+            renderSuggestion={renderSuggesion}
+          />
+        </MentionsTextarea>
         <Toolbox>
           <SendButton
             className={`c-button-unstyled c-icon_button c-icon_button--light c-icon_button--size_medium c-texty_input__button c-texty_input__button--send${

@@ -88,7 +88,7 @@ export class DmsService {
       Number(id),
     );
 
-    this.logger.debug(`DM 상대편에게 전송하기: ${dmWithSender}`);
+    this.logger.debug(`DM 상대편에게 전송하기: ${receiverSocketId}`);
     this.eventsGateway.server.to(receiverSocketId).emit('dm', dmWithSender);
   }
 
