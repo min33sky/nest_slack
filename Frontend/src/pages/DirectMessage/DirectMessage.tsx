@@ -126,6 +126,8 @@ export default function DirectMessage() {
           scrollbarRef.current?.scrollToBottom();
         });
 
+        socket?.emit('dm', { id: userData.id, content: savedChat });
+
         // 2. 서버로 데이터를 전송한다.
         axios
           .post(

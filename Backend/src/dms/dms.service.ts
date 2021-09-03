@@ -7,7 +7,7 @@ import { Workspaces } from 'src/entities/Workspaces';
 import { EventsGateway } from 'src/events/events.gateway';
 import { MoreThan, Repository } from 'typeorm';
 
-function getKeyByValue(object, value) {
+export function getKeyByValue(object, value) {
   return Object.keys(object).find((key) => object[key] === value);
 }
 
@@ -59,6 +59,7 @@ export class DmsService {
     return result;
   }
 
+  //* DM 보내기
   async createWorkspaceDMChats(
     url: string,
     content: string,
@@ -93,7 +94,6 @@ export class DmsService {
     );
     this.logger.debug(`URL : ${url}`);
     this.logger.debug(`DM 상대편에게 전송하기: ${receiverSocketId}`);
-    this.eventsGateway.server.to(`/ws-${url}`).emit('message', '시발');
     this.eventsGateway.server.to(receiverSocketId).emit('dm', dmWithSender);
   }
 

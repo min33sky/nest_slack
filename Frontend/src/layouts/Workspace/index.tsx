@@ -65,11 +65,7 @@ export default function Workspace() {
         id: userData.id,
         channels: channelData.map((channel) => channel.id),
       });
-      console.log('socket 연결: ', socket);
     }
-    console.log('시발 -채털데이터', channelData);
-    console.log('시발 -유저데이터', userData);
-    console.log('시발 -소켓', socket);
   }, [channelData, userData, socket]);
 
   useEffect(() => {

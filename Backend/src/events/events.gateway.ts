@@ -11,6 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io'; //? 원본 socket.io까지 설치를 해줘야 타입체크가 작동한다.
 import { Logger } from '@nestjs/common';
+import { getKeyByValue } from 'src/dms/dms.service';
 
 @WebSocketGateway({
   namespace: /\/ws-.+/,
@@ -43,6 +44,20 @@ export class EventsGateway
       console.log('join', socket.nsp.name, channel);
       socket.join(`${socket.nsp.name}-${channel}`);
     });
+  }
+
+  @SubscribeMessage('dm')
+  handleDM(
+    @MessageBody() data: { id: number; content: string },
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const result = Object.keys(onlineMap[socket.nsp.name]).find(
+      (key) => onlineMap[socket.nsp.name][key] === data.id,
+    );
+    this.logger.debug('[DM보내기!!!!!!!]: ', result);
+    if (result) {
+      socket.to(result).emit('dm', '시ㅣㅣㅣㅣㅣㅣㅣㅣ발');
+    }
   }
 
   afterInit(server: Server) {

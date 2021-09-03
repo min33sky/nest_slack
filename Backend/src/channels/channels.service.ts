@@ -192,6 +192,9 @@ export class ChannelsService {
     this.eventsGateway.server
       .to(`/ws-${url}-${channel.id}`)
       .emit('message', chatWithUser);
+    this.eventsGateway.server
+      .to(`/ws-sleact-1`)
+      .emit('message2222', chatWithUser);
   }
 
   /**
