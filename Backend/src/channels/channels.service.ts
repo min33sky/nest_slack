@@ -187,7 +187,7 @@ export class ChannelsService {
       relations: ['User', 'Channel'],
     });
 
-    this.logger.debug(`웹소켓 채팅방 전송: /ws-${url}-${channel.id}}`);
+    this.logger.debug(`웹소켓 채팅방 전송: /ws-${url}-${channel.id}`);
     // socket.io로 워크스페이스 + 채널 사용자에게 전송
     this.eventsGateway.server
       .to(`/ws-${url}-${channel.id}`)

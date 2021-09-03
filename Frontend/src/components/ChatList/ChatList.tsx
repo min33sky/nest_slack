@@ -1,15 +1,15 @@
 import Chat from '@components/Chat/Chat';
 import { ChatZone, Section, StickyHeader } from '@components/ChatList/style';
-import { IChat, IDM } from '@typings/db';
+import { IChannel, IChat, IDM } from '@typings/db';
 import { positionValues, Scrollbars } from 'react-custom-scrollbars';
 import React, { MutableRefObject, useCallback, useRef } from 'react';
 
 interface IChatList {
-  chatSections: { [key: string]: IDM[] };
+  chatSections: { [key: string]: (IDM | IChat)[] };
   isEmpty: boolean;
   isReachingEnd: boolean;
   // eslint-disable-next-line no-shadow
-  setSize: (size: number | ((size: number) => number)) => Promise<IDM[][] | undefined>;
+  setSize: (size: number | ((size: number) => number)) => Promise<(IDM | IChat)[][] | undefined>;
 }
 
 /**
@@ -19,7 +19,7 @@ const ChatList = React.forwardRef<Scrollbars, IChatList>(
   ({ chatSections, setSize, isEmpty, isReachingEnd }, scrollRef) => {
     const onScroll = useCallback(
       (values: positionValues) => {
-        if (values.scrollTop === 0 && !isReachingEnd) {
+        if (values.scrollTop === 0 && !isReachingEnd && !isEmpty) {
           console.log('가장 위~~~~');
           setSize((prevSize) => prevSize + 1).then(() => {
             //* 스크롤 위치 유지
@@ -30,7 +30,7 @@ const ChatList = React.forwardRef<Scrollbars, IChatList>(
           });
         }
       },
-      [isReachingEnd, setSize, scrollRef]
+      [isReachingEnd, setSize, scrollRef, isEmpty]
     );
 
     return (

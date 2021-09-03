@@ -1,15 +1,17 @@
 import ChatBox from '@components/ChatBox/ChatBox';
 import ChatList from '@components/ChatList/ChatList';
 import useInput from '@hooks/useInput';
+import useSocket from '@hooks/useSocket';
 import { Container, Header } from '@pages/Channel/Channel.style';
 import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
 import axios from 'axios';
-import React, { useCallback } from 'react';
+import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react';
+import Scrollbars from 'react-custom-scrollbars';
 import { useParams } from 'react-router-dom';
 
-import useSWR from 'swr';
+import useSWR, { useSWRInfinite } from 'swr';
 
 const PAGE_SIZE = 20;
 
@@ -19,19 +21,39 @@ const PAGE_SIZE = 20;
  */
 export default function Channel() {
   const { channel, workspace } = useParams<{ workspace: string; channel: string }>();
+  const scrollbarRef = useRef<Scrollbars>(null);
+  const [socket] = useSocket(workspace);
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);
-  const { data: channelData } = useSWR<IChannel[]>(`/api/workspaces/${workspace}/channels`);
-
+  const { data: channelsData } = useSWR<IChannel[]>(
+    `/api/workspaces/${workspace}/channels`,
+    fetcher
+  );
+  const channelData = channelsData?.find((v) => v.name === channel);
   const {
     data: chatData,
     mutate: mutateChat,
-    revalidate,
-  } = useSWR<IChat[]>(
-    `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=1`,
-    fetcher
+    setSize,
+  } = useSWRInfinite<IChat[]>(
+    (index) =>
+      `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=${
+        index + 1
+      }`,
+    fetcher,
+    {
+      onSuccess(data) {
+        if (data?.length === 1) {
+          setTimeout(() => {
+            scrollbarRef.current?.scrollToBottom();
+          }, 100);
+        }
+      },
+    }
   );
 
-  const { value: chat, handler: onChangeChat, setValue: setValueChat } = useInput('');
+  const { value: chat, handler: onChangeChat, setValue: setChat } = useInput('');
+
+  const isEmpty = chatData?.[0].length === 0;
+  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE); // ? 마지막 데이터인지 확인
 
   console.log('채널 데이터: ', channelData);
   console.log('채팅 데이터: ', chatData);
@@ -39,26 +61,50 @@ export default function Channel() {
   const onSubmitForm = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      axios
-        .post(
-          `/api/workspaces/${workspace}/channels/${channel}/chats`,
-          {
-            content: chat,
-          },
-          {
-            withCredentials: true,
+      if (chat?.trim() && chatData && channelData && userData) {
+        const savedChat = chat;
+        mutateChat((prevChatData) => {
+          prevChatData?.[0].unshift({
+            id: (chatData[0][0]?.id || 0) + 1,
+            content: savedChat,
+            UserId: userData.id,
+            User: userData,
+            createdAt: new Date(),
+            ChannelId: channelData.id,
+            Channel: channelData,
+          });
+          return prevChatData;
+        }, false).then(() => {
+          setChat('');
+          if (scrollbarRef.current) {
+            console.log('scrollToBottom!', scrollbarRef.current?.getValues());
+            scrollbarRef.current.scrollToBottom();
           }
-        )
-        .then(() => {
-          // TODO: 필요 없을 수도
-          setValueChat('');
-          console.log('[Channel] revalidate()');
-          revalidate();
-        })
-        .catch(console.error);
+        });
+        axios
+          .post(`/api/workspaces/${workspace}/channels/${channel}/chats`, {
+            content: savedChat,
+          })
+          .catch(console.error);
+      }
     },
-    [channel, chat, revalidate, workspace, setValueChat]
+    [channel, chat, workspace, setChat, channelData, chatData, mutateChat, userData]
   );
+
+  const onMessage = useCallback((data) => {
+    console.log('온 메세지: ', data);
+  }, []);
+
+  useEffect(() => {
+    socket?.on('message', onMessage);
+    return () => {
+      socket?.off('message', onMessage);
+    };
+  }, [socket, onMessage]);
+
+  console.log('채널 소켓 주소: ', socket);
+
+  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   return (
     <Container>
@@ -81,13 +127,13 @@ export default function Channel() {
         </div>
       </Header>
 
-      {/* <ChatList
-      // scrollbarRef={scrollbarRef}
-      // isReachingEnd={isReachingEnd}
-      // isEmpty={isEmpty}
-      // chatSections={chatSections}
-      // setSize={setSize}
-      /> */}
+      <ChatList
+        ref={scrollbarRef}
+        isReachingEnd={!!isReachingEnd}
+        isEmpty={isEmpty}
+        chatSections={chatSections}
+        setSize={setSize}
+      />
 
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
 

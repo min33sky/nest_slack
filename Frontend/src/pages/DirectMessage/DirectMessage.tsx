@@ -24,6 +24,7 @@ export default function DirectMessage() {
   const [socket] = useSocket(workspace);
   const { data: myData } = useSWR<IUser>('/api/users', fetcher); // 내 정보
   const { data: userData } = useSWR<IUser>(`/api/workspaces/${workspace}/members/${id}`, fetcher); // 상대방 정보
+  const scrollbarRef: MutableRefObject<Scrollbars | null> = useRef(null);
 
   const {
     data: chatData,
@@ -33,23 +34,73 @@ export default function DirectMessage() {
   } = useSWRInfinite<IDM[]>(
     (index: number) =>
       `/api/workspaces/${workspace}/dms/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
-    fetcher
+    fetcher,
+    {
+      onSuccess(data) {
+        if (data?.length === 1) {
+          setTimeout(() => {
+            scrollbarRef.current?.scrollToBottom();
+          }, 100);
+        }
+      },
+    }
   );
 
   const isEmpty = chatData?.[0].length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE); // ? 마지막 데이터인지 확인
-  const scrollbarRef: MutableRefObject<Scrollbars | null> = useRef(null);
 
   console.log('DM chat data: ', chatData);
+  console.log('Socket: ', socket);
 
   const { value: chat, handler: onChangeChat, setValue: setChat } = useInput('');
 
+  const onMessage = useCallback(
+    (data: IDM) => {
+      if (data.SenderId === Number(id) && myData?.id !== Number(id)) {
+        mutateChat((chatData) => {
+          chatData?.[0].unshift(data);
+          return chatData;
+        }, false).then(() => {
+          if (scrollbarRef.current) {
+            if (
+              scrollbarRef.current.getClientHeight() <
+              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+            ) {
+              console.log('scrollToBottom!', scrollbarRef.current.getValues());
+              setTimeout(() => {
+                scrollbarRef.current?.scrollToBottom();
+              }, 100);
+            }
+          }
+        });
+      }
+    },
+    [id, mutateChat, myData]
+  );
+
   //* 로딩 시 스크롤바 제일 아래로 이동
   useEffect(() => {
-    if (chatData && chatData.length > 0) {
+    // ? 제일 처음에 채팅 데이터를 불러왔을 때만 스크롤바를 제일 아래로 내린다.
+    if (chatData && chatData.length === 1) {
       scrollbarRef.current?.scrollToBottom();
     }
   }, [chatData]);
+
+  useEffect(() => {
+    socket?.on('dm', onMessage);
+    return () => {
+      socket?.off('dm', onMessage);
+    };
+  }, [socket, onMessage]);
+
+  useEffect(() => {
+    socket?.on('test', (data: any) => {
+      console.log('테스트용: ', data);
+    });
+    return () => {
+      socket?.off('test');
+    };
+  }, [socket]);
 
   const onSubmitForm = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {

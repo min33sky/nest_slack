@@ -20,7 +20,8 @@ export class DmsService {
     private workspacesRepository: Repository<Workspaces>,
     @InjectRepository(DMs) private dmsRepository: Repository<DMs>,
     @InjectRepository(Users) private usersRepository: Repository<Users>,
-    private readonly eventsGateway: EventsGateway,
+
+    private eventsGateway: EventsGateway,
   ) {}
 
   // TODO: 체크해봐야함
@@ -87,8 +88,12 @@ export class DmsService {
       onlineMap[`/ws-${workspace.url}`],
       Number(id),
     );
-
+    this.logger.debug(
+      '------------------------------------------------------------------------------------------------',
+    );
+    this.logger.debug(`URL : ${url}`);
     this.logger.debug(`DM 상대편에게 전송하기: ${receiverSocketId}`);
+    this.eventsGateway.server.to(`/ws-${url}`).emit('message', '시발');
     this.eventsGateway.server.to(receiverSocketId).emit('dm', dmWithSender);
   }
 
