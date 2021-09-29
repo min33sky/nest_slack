@@ -11,7 +11,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io'; //? 원본 socket.io까지 설치를 해줘야 타입체크가 작동한다.
 import { Logger } from '@nestjs/common';
-import { getKeyByValue } from 'src/dms/dms.service';
 
 @WebSocketGateway({
   namespace: /\/ws-.+/,
@@ -55,13 +54,13 @@ export class EventsGateway
       (key) => onlineMap[socket.nsp.name][key] === data.id,
     );
     this.logger.debug('[DM보내기!!!!!!!]: ', result);
-    if (result) {
-      socket.to(result).emit('dm', '시ㅣㅣㅣㅣㅣㅣㅣㅣ발');
-    }
+    // if (result) {
+    //   socket.to(result).emit('dm', '시ㅣㅣㅣㅣㅣㅣㅣㅣ발');
+    // }
   }
 
   afterInit(server: Server) {
-    console.log('websocket server init');
+    this.logger.log('websocket server init');
   }
 
   handleConnection(@ConnectedSocket() socket: Socket) {
@@ -72,6 +71,7 @@ export class EventsGateway
     // broadcast to all clients in the given sub-namespace
     socket.emit('hello', socket.nsp.name);
   }
+
   handleDisconnect(@ConnectedSocket() socket: Socket) {
     this.logger.debug(`[disconnected]: ${socket.nsp.name}`);
     const newNamespace = socket.nsp;
